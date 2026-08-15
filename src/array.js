@@ -1,5 +1,5 @@
 import { randomInt, toStep } from './math.js';
-import { isArray, isArrayLike, isUndefined } from './testing.js';
+import { isArray, isArrayLike, isFunction, isObject, isUndefined } from './testing.js';
 
 /**
  * Array methods
@@ -13,10 +13,10 @@ import { isArray, isArrayLike, isUndefined } from './testing.js';
  * @returns {T[]} The filtered array.
  */
 export const diff = (array, ...arrays) => {
-    arrays = arrays.map(unique);
+    const sets = arrays.map((other) => new Set(other));
     return array.filter(
-        (value) => !arrays
-            .some((other) => other.includes(value)),
+        (value) => !sets
+            .some((other) => other.has(value)),
     );
 };
 
@@ -26,27 +26,18 @@ export const diff = (array, ...arrays) => {
  * @param {...T[]} arrays The input arrays.
  * @returns {T[]} The intersected array.
  */
-export const intersect = (...arrays) =>
-    unique(
-        arrays
-            .reduce(
-                (acc, array, index) => {
-                    array = unique(array);
-                    return merge(
-                        acc,
-                        array.filter(
-                            (value) =>
-                                arrays.every(
-                                    (other, otherIndex) =>
-                                        index == otherIndex ||
-                                        other.includes(value),
-                                ),
-                        ),
-                    );
-                },
-                [],
-            ),
-    );
+export const intersect = (...arrays) => {
+    if (!arrays.length) {
+        return [];
+    }
+
+    const [array, ...others] = arrays;
+    const sets = others.map((other) => new Set(other));
+    return unique(array)
+        .filter(
+            (value) => sets.every((other) => other.has(value)),
+        );
+};
 
 /**
  * Merges values from one or more arrays or array-like objects into an array.
@@ -54,15 +45,22 @@ export const intersect = (...arrays) =>
  * @param {T[]} [array=[]] The array to merge into.
  * @param {...ArrayLike<T>} arrays The arrays or array-like objects to merge.
  * @returns {T[]} The merged array.
+ * @throws {RangeError} If an array-like length is infinite.
  */
-export const merge = (array = [], ...arrays) =>
-    arrays.reduce(
-        (acc, other) => {
-            Array.prototype.push.apply(acc, other);
-            return array;
-        },
-        array,
-    );
+export const merge = (array = [], ...arrays) => {
+    for (const other of arrays) {
+        const length = Math.max(0, Math.floor(Number(other.length) || 0));
+        if (!Number.isFinite(length)) {
+            throw new RangeError('Array-like length must be finite');
+        }
+
+        for (let i = 0; i < length; i++) {
+            array.push(other[i]);
+        }
+    }
+
+    return array;
+};
 
 /**
  * Selects a random value from an array.
@@ -89,18 +87,20 @@ export const range = (start, end, step = 1) => {
 
     const sign = Math.sign(end - start);
     step = Math.abs(step);
+    const ratio = Math.abs(end - start) / step;
+    const nearest = Math.round(ratio);
+    const landsOnEnd = Math.abs(ratio - nearest) <= Number.EPSILON * Math.max(1, ratio);
+    const intervals = landsOnEnd ?
+        nearest :
+        Math.floor(ratio);
+
     return new Array(
-        Math.floor(
-            (
-                Math.abs(end - start) /
-                step
-            ) +
-            1,
-        ),
+        intervals + 1,
     )
         .fill()
         .map(
-            (_, i) =>
+            (_, i) => i === intervals && landsOnEnd ?
+                end :
                 start + toStep(
                     (i * step * sign),
                     step,
@@ -120,20 +120,28 @@ export const unique = (array) =>
     );
 
 /**
- * Creates an array from a value.
+ * Creates an array from a value, copying iterable and array-like objects.
  * @template T
- * @param {T|T[]|ArrayLike<T>|undefined} value The input value.
+ * @param {T|T[]|ArrayLike<T>|Iterable<T>|undefined} value The input value.
  * @returns {T[]} The wrapped array.
  */
-export const wrap = (value) =>
-    isUndefined(value) ?
-        [] :
-        (
-            isArray(value) ?
-                value :
-                (
-                    isArrayLike(value) ?
-                        merge([], value) :
-                        [value]
-                )
-        );
+export const wrap = (value) => {
+    if (isUndefined(value)) {
+        return [];
+    }
+
+    if (isArray(value)) {
+        return value;
+    }
+
+    if (
+        isObject(value) &&
+        isFunction(value[Symbol.iterator])
+    ) {
+        return Array.from(value);
+    }
+
+    return isArrayLike(value) ?
+        merge([], value) :
+        [value];
+};

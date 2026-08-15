@@ -4,6 +4,83 @@ import { isArray, isObject, isPlainObject } from './testing.js';
  * Object methods
  */
 
+const hasOwn = (object, key) =>
+    Object.prototype.hasOwnProperty.call(object, key);
+
+const assignOwn = (object, key, value) => {
+    if (hasOwn(object, key)) {
+        object[key] = value;
+        return;
+    }
+
+    Object.defineProperty(
+        object,
+        key,
+        {
+            configurable: true,
+            enumerable: true,
+            value,
+            writable: true,
+        },
+    );
+};
+
+const setDotSegments = (object, keys, value, overwrite) => {
+    const [key, ...remainingKeys] = keys;
+    if (!key) {
+        return;
+    }
+
+    if (key === '*') {
+        for (const childKey of Object.keys(object)) {
+            if (!remainingKeys.length) {
+                if (overwrite) {
+                    assignOwn(object, childKey, value);
+                }
+                continue;
+            }
+
+            let child = object[childKey];
+            if (!isObject(child)) {
+                if (!overwrite) {
+                    continue;
+                }
+
+                child = {};
+                assignOwn(object, childKey, child);
+            }
+
+            setDotSegments(child, remainingKeys, value, overwrite);
+        }
+        return;
+    }
+
+    if (remainingKeys.length) {
+        let child = hasOwn(object, key) ?
+            object[key] :
+            undefined;
+
+        if (!isObject(child)) {
+            if (
+                hasOwn(object, key) &&
+                !overwrite
+            ) {
+                return;
+            }
+
+            child = {};
+            assignOwn(object, key, child);
+        }
+
+        setDotSegments(child, remainingKeys, value, overwrite);
+    } else if (
+        overwrite ||
+        !hasOwn(object, key)
+    ) {
+        assignOwn(object, key, value);
+    }
+};
+
 /**
  * Merges values from one or more objects into an object (recursively).
  * @param {object} object The input object.
@@ -17,27 +94,35 @@ export const extend = (object, ...objects) =>
                 return acc;
             }
 
-            for (const k in val) {
-                if (!{}.hasOwnProperty.call(val, k)) {
-                    continue;
-                }
-
-                if (isArray(val[k])) {
-                    acc[k] = extend(
-                        isArray(acc[k]) ?
-                            acc[k] :
-                            [],
-                        val[k],
+            for (const k of Object.keys(val)) {
+                const value = val[k];
+                const currentValue = hasOwn(acc, k) ?
+                    acc[k] :
+                    undefined;
+                if (isArray(value)) {
+                    assignOwn(
+                        acc,
+                        k,
+                        extend(
+                            isArray(currentValue) ?
+                                currentValue :
+                                [],
+                            value,
+                        ),
                     );
-                } else if (isPlainObject(val[k])) {
-                    acc[k] = extend(
-                        isPlainObject(acc[k]) ?
-                            acc[k] :
-                            {},
-                        val[k],
+                } else if (isPlainObject(value)) {
+                    assignOwn(
+                        acc,
+                        k,
+                        extend(
+                            isPlainObject(currentValue) ?
+                                currentValue :
+                                {},
+                            value,
+                        ),
                     );
                 } else {
-                    acc[k] = val[k];
+                    assignOwn(acc, k, value);
                 }
             }
             return acc;
@@ -46,7 +131,7 @@ export const extend = (object, ...objects) =>
     );
 
 /**
- * Flattens an object using dot notation.
+ * Flattens an object using dot notation while preserving empty plain objects.
  * @param {object} object The input object.
  * @param {string} [prefix] The key prefix.
  * @returns {object} The flattened object.
@@ -54,10 +139,16 @@ export const extend = (object, ...objects) =>
 export const flatten = (object, prefix = '') =>
     Object.keys(object).reduce((acc, key) => {
         const prefixedKey = `${prefix}${key}`;
-        if (isPlainObject(object[key])) {
-            Object.assign(acc, flatten(object[key], `${prefixedKey}.`));
+        if (
+            isPlainObject(object[key]) &&
+            Object.keys(object[key]).length
+        ) {
+            const flattened = flatten(object[key], `${prefixedKey}.`);
+            for (const flattenedKey of Object.keys(flattened)) {
+                assignOwn(acc, flattenedKey, flattened[flattenedKey]);
+            }
         } else {
-            acc[prefixedKey] = object[key];
+            assignOwn(acc, prefixedKey, object[key]);
         }
 
         return acc;
@@ -74,7 +165,7 @@ export const forgetDot = (object, key) => {
     while ((key = keys.shift())) {
         if (
             !isObject(object) ||
-            !(key in object)
+            !hasOwn(object, key)
         ) {
             break;
         }
@@ -88,7 +179,7 @@ export const forgetDot = (object, key) => {
 };
 
 /**
- * Retrieves the value of a specified key from an object using dot notation.
+ * Retrieves an own value of a specified key from an object using dot notation.
  * @param {object} object The input object.
  * @param {string} key The key to retrieve from the object.
  * @param {*} [defaultValue] The default value if key does not exist.
@@ -99,7 +190,7 @@ export const getDot = (object, key, defaultValue) => {
     while ((key = keys.shift())) {
         if (
             !isObject(object) ||
-            !(key in object)
+            !hasOwn(object, key)
         ) {
             return defaultValue;
         }
@@ -111,7 +202,7 @@ export const getDot = (object, key, defaultValue) => {
 };
 
 /**
- * Checks whether a specified key exists in an object using dot notation.
+ * Checks whether a specified own key exists in an object using dot notation.
  * @param {object} object The input object.
  * @param {string} key The key to test for in the object.
  * @returns {boolean} Whether the key exists.
@@ -121,7 +212,7 @@ export const hasDot = (object, key) => {
     while ((key = keys.shift())) {
         if (
             !isObject(object) ||
-            !(key in object)
+            !hasOwn(object, key)
         ) {
             return false;
         }
@@ -146,7 +237,7 @@ export const pluckDot = (objects, key, defaultValue) =>
         );
 
 /**
- * Sets a specified value of a key for an object using dot notation.
+ * Sets a specified value of a key for an object using dot notation, including wildcard segments.
  * @param {object} object The input object.
  * @param {string} key The key to set in the object.
  * @param {*} value The value to set.
@@ -154,39 +245,5 @@ export const pluckDot = (objects, key, defaultValue) =>
  * @param {boolean} [options.overwrite=true] Whether to overwrite the value if the key already exists.
  * @returns {void} Nothing.
  */
-export const setDot = (object, key, value, { overwrite = true } = {}) => {
-    const keys = key.split('.');
-    while ((key = keys.shift())) {
-        if (key === '*') {
-            for (const k in object) {
-                if (!{}.hasOwnProperty.call(object, k)) {
-                    continue;
-                }
-
-                setDot(
-                    object,
-                    [k].concat(keys).join('.'),
-                    value,
-                    { overwrite },
-                );
-            }
-            return;
-        }
-
-        if (keys.length) {
-            if (
-                !isObject(object[key]) ||
-                !(key in object)
-            ) {
-                object[key] = {};
-            }
-
-            object = object[key];
-        } else if (
-            overwrite ||
-            !(key in object)
-        ) {
-            object[key] = value;
-        }
-    }
-};
+export const setDot = (object, key, value, { overwrite = true } = {}) =>
+    setDotSegments(object, key.split('.'), value, overwrite);

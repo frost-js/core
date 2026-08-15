@@ -153,8 +153,11 @@
      * @returns {boolean} Whether the value is a plain object.
      */
     const isPlainObject = (value) =>
-        !!value &&
-        value.constructor === Object;
+        isObject(value) &&
+        (
+            Object.getPrototypeOf(value) === null ||
+            Object.getPrototypeOf(value) === Object.prototype
+        );
 
     /**
      * Checks whether a value is a ShadowRoot.
@@ -204,6 +207,17 @@
     /**
      * Math methods
      */
+
+    /**
+     * Gets the decimal precision represented by a number.
+     * @param {number} value The input number.
+     * @returns {number} The decimal precision.
+     */
+    const getDecimalPlaces = (value) => {
+        const [coefficient, exponent = 0] = `${value}`.toLowerCase().split('e');
+        const decimals = (coefficient.split('.')[1] || '').length;
+        return Math.max(0, decimals - Number(exponent));
+    };
 
     /**
      * Clamps a value between a minimum and a maximum.
@@ -311,20 +325,22 @@
      * @param {number} [a=1] The upper bound (exclusive) when `b` is omitted; otherwise the minimum bound (inclusive).
      * @param {number} [b] The maximum value (exclusive).
      * @returns {number} A random integer.
+     * @throws {RangeError} If the bounds contain no integer.
      */
-    const randomInt = (a = 1, b = null) =>
-        Math.floor(
-            random(
-                Math.min(
-                    a,
-                    isNull(b) ? 0 : b,
-                ),
-                Math.max(
-                    a,
-                    isNull(b) ? 0 : b,
-                ),
-            ),
+    const randomInt = (a = 1, b = null) => {
+        const min = Math.ceil(
+            Math.min(a, isNull(b) ? 0 : b),
         );
+        const max = Math.ceil(
+            Math.max(a, isNull(b) ? 0 : b),
+        );
+
+        if (min >= max) {
+            throw new RangeError('The bounds do not contain an integer');
+        }
+
+        return Math.floor(random(min, max));
+    };
 
     /**
      * Constrains a number to a specified step size.
@@ -339,13 +355,15 @@
 
         step = Math.abs(step);
 
+        const result = Math.round(value / step) * step;
+        const precision = getDecimalPlaces(step);
+
+        if (precision > 100) {
+            return result;
+        }
+
         return parseFloat(
-            (
-                Math.round(value / step) *
-                step
-            ).toFixed(
-                `${step}`.replace(/\d*\.?/, '').length,
-            ),
+            result.toFixed(precision),
         );
     };
 
@@ -361,10 +379,10 @@
      * @returns {T[]} The filtered array.
      */
     const diff = (array, ...arrays) => {
-        arrays = arrays.map(unique);
+        const sets = arrays.map((other) => new Set(other));
         return array.filter(
-            (value) => !arrays
-                .some((other) => other.includes(value)),
+            (value) => !sets
+                .some((other) => other.has(value)),
         );
     };
 
@@ -374,27 +392,18 @@
      * @param {...T[]} arrays The input arrays.
      * @returns {T[]} The intersected array.
      */
-    const intersect = (...arrays) =>
-        unique(
-            arrays
-                .reduce(
-                    (acc, array, index) => {
-                        array = unique(array);
-                        return merge(
-                            acc,
-                            array.filter(
-                                (value) =>
-                                    arrays.every(
-                                        (other, otherIndex) =>
-                                            index == otherIndex ||
-                                            other.includes(value),
-                                    ),
-                            ),
-                        );
-                    },
-                    [],
-                ),
-        );
+    const intersect = (...arrays) => {
+        if (!arrays.length) {
+            return [];
+        }
+
+        const [array, ...others] = arrays;
+        const sets = others.map((other) => new Set(other));
+        return unique(array)
+            .filter(
+                (value) => sets.every((other) => other.has(value)),
+            );
+    };
 
     /**
      * Merges values from one or more arrays or array-like objects into an array.
@@ -402,15 +411,22 @@
      * @param {T[]} [array=[]] The array to merge into.
      * @param {...ArrayLike<T>} arrays The arrays or array-like objects to merge.
      * @returns {T[]} The merged array.
+     * @throws {RangeError} If an array-like length is infinite.
      */
-    const merge = (array = [], ...arrays) =>
-        arrays.reduce(
-            (acc, other) => {
-                Array.prototype.push.apply(acc, other);
-                return array;
-            },
-            array,
-        );
+    const merge = (array = [], ...arrays) => {
+        for (const other of arrays) {
+            const length = Math.max(0, Math.floor(Number(other.length) || 0));
+            if (!Number.isFinite(length)) {
+                throw new RangeError('Array-like length must be finite');
+            }
+
+            for (let i = 0; i < length; i++) {
+                array.push(other[i]);
+            }
+        }
+
+        return array;
+    };
 
     /**
      * Selects a random value from an array.
@@ -437,18 +453,20 @@
 
         const sign = Math.sign(end - start);
         step = Math.abs(step);
+        const ratio = Math.abs(end - start) / step;
+        const nearest = Math.round(ratio);
+        const landsOnEnd = Math.abs(ratio - nearest) <= Number.EPSILON * Math.max(1, ratio);
+        const intervals = landsOnEnd ?
+            nearest :
+            Math.floor(ratio);
+
         return new Array(
-            Math.floor(
-                (
-                    Math.abs(end - start) /
-                    step
-                ) +
-                1,
-            ),
+            intervals + 1,
         )
             .fill()
             .map(
-                (_, i) =>
+                (_, i) => i === intervals && landsOnEnd ?
+                    end :
                     start + toStep(
                         (i * step * sign),
                         step,
@@ -468,23 +486,31 @@
         );
 
     /**
-     * Creates an array from a value.
+     * Creates an array from a value, copying iterable and array-like objects.
      * @template T
-     * @param {T|T[]|ArrayLike<T>|undefined} value The input value.
+     * @param {T|T[]|ArrayLike<T>|Iterable<T>|undefined} value The input value.
      * @returns {T[]} The wrapped array.
      */
-    const wrap = (value) =>
-        isUndefined(value) ?
-            [] :
-            (
-                isArray(value) ?
-                    value :
-                    (
-                        isArrayLike(value) ?
-                            merge([], value) :
-                            [value]
-                    )
-            );
+    const wrap = (value) => {
+        if (isUndefined(value)) {
+            return [];
+        }
+
+        if (isArray(value)) {
+            return value;
+        }
+
+        if (
+            isObject(value) &&
+            isFunction(value[Symbol.iterator])
+        ) {
+            return Array.from(value);
+        }
+
+        return isArrayLike(value) ?
+            merge([], value) :
+            [value];
+    };
 
     /**
      * Function methods
@@ -517,46 +543,60 @@
      * @returns {CancelableWrapper<T>} The wrapped function.
      */
     const animation = (callback, { leading = false } = {}) => {
-        let animationReference;
+        let animationReference = null;
         let newArgs;
-        let running;
+        let newThis;
+        let running = false;
 
-        const animation = (...args) => {
+        const cancel = (_) => {
+            if (animationReference !== null) {
+                if (isBrowser) {
+                    window.cancelAnimationFrame(animationReference);
+                } else {
+                    clearTimeout(animationReference);
+                }
+            }
+
+            animationReference = null;
+            newArgs = null;
+            newThis = null;
+            running = false;
+        };
+
+        const animation = function(...args) {
             newArgs = args;
+            newThis = this;
 
             if (running) {
                 return;
             }
 
-            if (leading) {
-                callback(...newArgs);
-            }
-
             running = true;
             animationReference = _requestAnimationFrame((_) => {
-                if (!leading) {
-                    callback(...newArgs);
-                }
+                const args = newArgs;
+                const thisArg = newThis;
 
-                running = false;
                 animationReference = null;
+                newArgs = null;
+                newThis = null;
+                running = false;
+
+                if (!leading) {
+                    callback.apply(thisArg, args);
+                }
             });
+
+            if (leading) {
+                try {
+                    callback.apply(this, args);
+                } catch (error) {
+                    cancel();
+                    throw error;
+                }
+            }
         };
 
-        animation.cancel = (_) => {
-            if (!animationReference) {
-                return;
-            }
-
-            if (isBrowser) {
-                window.cancelAnimationFrame(animationReference);
-            } else {
-                clearTimeout(animationReference);
-            }
-
-            running = false;
-            animationReference = null;
-        };
+        animation.cancel = cancel;
 
         return animation;
     };
@@ -568,12 +608,13 @@
      * @returns {(arg: any) => any} The wrapped function.
      */
     const compose = (...callbacks) =>
-        (arg) =>
-            callbacks.reduceRight(
+        function(arg) {
+            return callbacks.reduceRight(
                 (acc, callback) =>
-                    callback(acc),
+                    callback.call(this, acc),
                 arg,
             );
+        };
 
     /**
      * Creates a wrapped version of a function that returns new functions
@@ -584,13 +625,15 @@
      * @returns {Function} The wrapped function.
      */
     const curry = (callback) => {
-        const curried = (...args) =>
-            args.length >= callback.length ?
-                callback(...args) :
-                (...newArgs) =>
-                    curried(
-                        ...args.concat(newArgs),
-                    );
+        const curried = function(...args) {
+            const thisArg = this;
+            if (args.length >= callback.length) {
+                return callback.apply(thisArg, args);
+            }
+
+            return (...newArgs) =>
+                curried.apply(thisArg, args.concat(newArgs));
+        };
 
         return curried;
     };
@@ -607,56 +650,67 @@
      * @returns {CancelableWrapper<T>} The wrapped function.
      */
     const debounce = (callback, wait = 0, { leading = false, trailing = true } = {}) => {
-        let debounceReference;
-        let lastRan;
+        let debounceReference = null;
         let newArgs;
+        let newThis;
+        let trailingPending = false;
 
-        const debounced = (...args) => {
-            const now = Date.now();
-            const delta = lastRan ?
-                now - lastRan :
-                null;
-
-            if (leading && (delta === null || delta >= wait)) {
-                if (debounceReference) {
-                    clearTimeout(debounceReference);
-                    debounceReference = null;
-                }
-
-                lastRan = now;
-                callback(...args);
-                return;
-            }
-
-            newArgs = args;
-            if (!trailing) {
-                return;
-            }
-
-            if (debounceReference) {
+        const cancel = (_) => {
+            if (debounceReference !== null) {
                 clearTimeout(debounceReference);
             }
 
-            debounceReference = setTimeout(
-                (_) => {
-                    lastRan = Date.now();
-                    callback(...newArgs);
-
-                    debounceReference = null;
-                },
-                wait,
-            );
+            debounceReference = null;
+            newArgs = null;
+            newThis = null;
+            trailingPending = false;
         };
 
-        debounced.cancel = (_) => {
-            if (!debounceReference) {
+        const debounced = function(...args) {
+            if (!leading && !trailing) {
                 return;
             }
 
-            clearTimeout(debounceReference);
+            const callLeading = leading && debounceReference === null;
+            if (debounceReference !== null) {
+                clearTimeout(debounceReference);
+                trailingPending = true;
+            } else {
+                trailingPending = false;
+            }
 
-            debounceReference = null;
+            newArgs = args;
+            newThis = this;
+
+            debounceReference = setTimeout(
+                (_) => {
+                    const args = newArgs;
+                    const thisArg = newThis;
+                    const callTrailing = trailing && (!leading || trailingPending);
+
+                    debounceReference = null;
+                    newArgs = null;
+                    newThis = null;
+                    trailingPending = false;
+
+                    if (callTrailing) {
+                        callback.apply(thisArg, args);
+                    }
+                },
+                wait,
+            );
+
+            if (callLeading) {
+                try {
+                    callback.apply(this, args);
+                } catch (error) {
+                    cancel();
+                    throw error;
+                }
+            }
         };
+
+        debounced.cancel = cancel;
 
         return debounced;
     };
@@ -680,17 +734,22 @@
      * @returns {(...args: Parameters<T>) => ReturnType<T>} The wrapped function.
      */
     const once = (callback) => {
-        let ran;
+        let ran = false;
         let result;
 
-        return (...args) => {
+        return function(...args) {
             if (ran) {
                 return result;
             }
 
-            result = callback(...args);
             ran = true;
-            return result;
+            try {
+                result = callback.apply(this, args);
+                return result;
+            } catch (error) {
+                ran = false;
+                throw error;
+            }
         };
     };
 
@@ -702,8 +761,9 @@
      * @returns {(...args: any[]) => ReturnType<T>} The wrapped function.
      */
     const partial = (callback, ...defaultArgs) =>
-        (...args) =>
-            callback(
+        function(...args) {
+            return callback.call(
+                this,
                 ...(defaultArgs
                     .slice()
                     .map((v) =>
@@ -713,6 +773,7 @@
                     ).concat(args)
                 ),
             );
+        };
 
     /**
      * Creates a wrapped function that executes each callback in order,
@@ -721,12 +782,13 @@
      * @returns {(arg: any) => any} The wrapped function.
      */
     const pipe = (...callbacks) =>
-        (arg) =>
-            callbacks.reduce(
+        function(arg) {
+            return callbacks.reduce(
                 (acc, callback) =>
-                    callback(acc),
+                    callback.call(this, acc),
                 arg,
             );
+        };
 
     /**
      * Creates a wrapped version of a function that executes at most once per wait period.
@@ -740,53 +802,78 @@
      * @returns {CancelableWrapper<T>} The wrapped function.
      */
     const throttle = (callback, wait = 0, { leading = true, trailing = true } = {}) => {
-        let throttleReference;
+        let throttleReference = null;
         let lastRan;
         let newArgs;
-        let running;
+        let newThis;
 
-        const throttled = (...args) => {
+        const cancel = (_) => {
+            if (throttleReference !== null) {
+                clearTimeout(throttleReference);
+            }
+
+            throttleReference = null;
+            lastRan = undefined;
+            newArgs = null;
+            newThis = null;
+        };
+
+        const runTrailing = (_) => {
+            const args = newArgs;
+            const thisArg = newThis;
+
+            throttleReference = null;
+            newArgs = null;
+            newThis = null;
+            lastRan = Date.now();
+            callback.apply(thisArg, args);
+        };
+
+        const throttled = function(...args) {
             const now = Date.now();
-            const delta = lastRan ?
-                now - lastRan :
-                null;
+            const delta = lastRan === undefined ?
+                null :
+                now - lastRan;
 
             if (leading && (delta === null || delta >= wait)) {
+                if (throttleReference !== null) {
+                    clearTimeout(throttleReference);
+                    throttleReference = null;
+                }
+
+                newArgs = null;
+                newThis = null;
                 lastRan = now;
-                callback(...args);
+
+                try {
+                    callback.apply(this, args);
+                } catch (error) {
+                    cancel();
+                    throw error;
+                }
+                return;
+            }
+
+            if (!trailing) {
                 return;
             }
 
             newArgs = args;
-            if (running || !trailing) {
+            newThis = this;
+
+            if (throttleReference !== null) {
                 return;
             }
 
-            running = true;
             throttleReference = setTimeout(
-                (_) => {
-                    lastRan = Date.now();
-                    callback(...newArgs);
-
-                    running = false;
-                    throttleReference = null;
-                },
-                delta === null ?
+                runTrailing,
+                delta === null || (!leading && delta >= wait) ?
                     wait :
-                    wait - delta,
+                    Math.max(0, wait - delta),
             );
         };
 
-        throttled.cancel = (_) => {
-            if (!throttleReference) {
-                return;
-            }
-
-            clearTimeout(throttleReference);
-
-            running = false;
-            throttleReference = null;
-        };
+        throttled.cancel = cancel;
 
         return throttled;
     };
@@ -809,6 +896,83 @@
      * Object methods
      */
 
+    const hasOwn = (object, key) =>
+        Object.prototype.hasOwnProperty.call(object, key);
+
+    const assignOwn = (object, key, value) => {
+        if (hasOwn(object, key)) {
+            object[key] = value;
+            return;
+        }
+
+        Object.defineProperty(
+            object,
+            key,
+            {
+                configurable: true,
+                enumerable: true,
+                value,
+                writable: true,
+            },
+        );
+    };
+
+    const setDotSegments = (object, keys, value, overwrite) => {
+        const [key, ...remainingKeys] = keys;
+        if (!key) {
+            return;
+        }
+
+        if (key === '*') {
+            for (const childKey of Object.keys(object)) {
+                if (!remainingKeys.length) {
+                    if (overwrite) {
+                        assignOwn(object, childKey, value);
+                    }
+                    continue;
+                }
+
+                let child = object[childKey];
+                if (!isObject(child)) {
+                    if (!overwrite) {
+                        continue;
+                    }
+
+                    child = {};
+                    assignOwn(object, childKey, child);
+                }
+
+                setDotSegments(child, remainingKeys, value, overwrite);
+            }
+            return;
+        }
+
+        if (remainingKeys.length) {
+            let child = hasOwn(object, key) ?
+                object[key] :
+                undefined;
+
+            if (!isObject(child)) {
+                if (
+                    hasOwn(object, key) &&
+                    !overwrite
+                ) {
+                    return;
+                }
+
+                child = {};
+                assignOwn(object, key, child);
+            }
+
+            setDotSegments(child, remainingKeys, value, overwrite);
+        } else if (
+            overwrite ||
+            !hasOwn(object, key)
+        ) {
+            assignOwn(object, key, value);
+        }
+    };
+
     /**
      * Merges values from one or more objects into an object (recursively).
      * @param {object} object The input object.
@@ -822,27 +986,35 @@
                     return acc;
                 }
 
-                for (const k in val) {
-                    if (!{}.hasOwnProperty.call(val, k)) {
-                        continue;
-                    }
-
-                    if (isArray(val[k])) {
-                        acc[k] = extend(
-                            isArray(acc[k]) ?
-                                acc[k] :
-                                [],
-                            val[k],
+                for (const k of Object.keys(val)) {
+                    const value = val[k];
+                    const currentValue = hasOwn(acc, k) ?
+                        acc[k] :
+                        undefined;
+                    if (isArray(value)) {
+                        assignOwn(
+                            acc,
+                            k,
+                            extend(
+                                isArray(currentValue) ?
+                                    currentValue :
+                                    [],
+                                value,
+                            ),
                         );
-                    } else if (isPlainObject(val[k])) {
-                        acc[k] = extend(
-                            isPlainObject(acc[k]) ?
-                                acc[k] :
-                                {},
-                            val[k],
+                    } else if (isPlainObject(value)) {
+                        assignOwn(
+                            acc,
+                            k,
+                            extend(
+                                isPlainObject(currentValue) ?
+                                    currentValue :
+                                    {},
+                                value,
+                            ),
                         );
                     } else {
-                        acc[k] = val[k];
+                        assignOwn(acc, k, value);
                     }
                 }
                 return acc;
@@ -851,7 +1023,7 @@
         );
 
     /**
-     * Flattens an object using dot notation.
+     * Flattens an object using dot notation while preserving empty plain objects.
      * @param {object} object The input object.
      * @param {string} [prefix] The key prefix.
      * @returns {object} The flattened object.
@@ -859,10 +1031,16 @@
     const flatten = (object, prefix = '') =>
         Object.keys(object).reduce((acc, key) => {
             const prefixedKey = `${prefix}${key}`;
-            if (isPlainObject(object[key])) {
-                Object.assign(acc, flatten(object[key], `${prefixedKey}.`));
+            if (
+                isPlainObject(object[key]) &&
+                Object.keys(object[key]).length
+            ) {
+                const flattened = flatten(object[key], `${prefixedKey}.`);
+                for (const flattenedKey of Object.keys(flattened)) {
+                    assignOwn(acc, flattenedKey, flattened[flattenedKey]);
+                }
             } else {
-                acc[prefixedKey] = object[key];
+                assignOwn(acc, prefixedKey, object[key]);
             }
 
             return acc;
@@ -879,7 +1057,7 @@
         while ((key = keys.shift())) {
             if (
                 !isObject(object) ||
-                !(key in object)
+                !hasOwn(object, key)
             ) {
                 break;
             }
@@ -893,7 +1071,7 @@
     };
 
     /**
-     * Retrieves the value of a specified key from an object using dot notation.
+     * Retrieves an own value of a specified key from an object using dot notation.
      * @param {object} object The input object.
      * @param {string} key The key to retrieve from the object.
      * @param {*} [defaultValue] The default value if key does not exist.
@@ -904,7 +1082,7 @@
         while ((key = keys.shift())) {
             if (
                 !isObject(object) ||
-                !(key in object)
+                !hasOwn(object, key)
             ) {
                 return defaultValue;
             }
@@ -916,7 +1094,7 @@
     };
 
     /**
-     * Checks whether a specified key exists in an object using dot notation.
+     * Checks whether a specified own key exists in an object using dot notation.
      * @param {object} object The input object.
      * @param {string} key The key to test for in the object.
      * @returns {boolean} Whether the key exists.
@@ -926,7 +1104,7 @@
         while ((key = keys.shift())) {
             if (
                 !isObject(object) ||
-                !(key in object)
+                !hasOwn(object, key)
             ) {
                 return false;
             }
@@ -951,7 +1129,7 @@
             );
 
     /**
-     * Sets a specified value of a key for an object using dot notation.
+     * Sets a specified value of a key for an object using dot notation, including wildcard segments.
      * @param {object} object The input object.
      * @param {string} key The key to set in the object.
      * @param {*} value The value to set.
@@ -959,42 +1137,8 @@
      * @param {boolean} [options.overwrite=true] Whether to overwrite the value if the key already exists.
      * @returns {void} Nothing.
      */
-    const setDot = (object, key, value, { overwrite = true } = {}) => {
-        const keys = key.split('.');
-        while ((key = keys.shift())) {
-            if (key === '*') {
-                for (const k in object) {
-                    if (!{}.hasOwnProperty.call(object, k)) {
-                        continue;
-                    }
-
-                    setDot(
-                        object,
-                        [k].concat(keys).join('.'),
-                        value,
-                        { overwrite },
-                    );
-                }
-                return;
-            }
-
-            if (keys.length) {
-                if (
-                    !isObject(object[key]) ||
-                    !(key in object)
-                ) {
-                    object[key] = {};
-                }
-
-                object = object[key];
-            } else if (
-                overwrite ||
-                !(key in object)
-            ) {
-                object[key] = value;
-            }
-        }
-    };
+    const setDot = (object, key, value, { overwrite = true } = {}) =>
+        setDotSegments(object, key.split('.'), value, overwrite);
 
     // HTML escape characters
     const escapeChars = {
@@ -1078,7 +1222,12 @@
      * @returns {string} The escaped string.
      */
     const escapeRegExp = (string) =>
-        string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        string.replace(
+            /[-/\\^$*+?.()|[\]{}]/g,
+            (match) => match === '-' ?
+                '\\x2d' :
+                `\\${match}`,
+        );
 
     /**
      * Converts a string to a humanized form.
@@ -1117,18 +1266,25 @@
 
     /**
      * Creates a random string.
-     * @param {number} [length=16] The length of the output string.
-     * @param {string} [chars=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789] The characters to generate the string from.
+     * @param {number} [length=16] The number of characters in the output string.
+     * @param {string} [chars=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789] The non-empty Unicode characters to generate the string from.
+     * @throws {TypeError} If chars is empty.
      * @returns {string} The random string.
      */
-    const randomString = (length = 16, chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') =>
-        new Array(length)
+    const randomString = (length = 16, chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') => {
+        const characters = Array.from(chars);
+        if (!characters.length) {
+            throw new TypeError('chars must not be empty');
+        }
+
+        return new Array(length)
             .fill()
             .map(
                 (_) =>
-                    chars[randomInt(chars.length)],
+                    characters[randomInt(characters.length)],
             )
             .join('');
+    };
 
     /**
      * Converts a string to snake_case.

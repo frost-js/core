@@ -277,6 +277,11 @@ describe('Testing (Custom)', function() {
             );
         });
 
+        it('works with null-prototype and shadowed-constructor objects', function() {
+            assert.strictEqual(isPlainObject(Object.create(null)), true);
+            assert.strictEqual(isPlainObject({ constructor: null }), true);
+        });
+
         it('works with string', function() {
             assert.strictEqual(
                 isPlainObject(mockString),

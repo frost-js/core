@@ -5,6 +5,17 @@ import { isNull } from './testing.js';
  */
 
 /**
+ * Gets the decimal precision represented by a number.
+ * @param {number} value The input number.
+ * @returns {number} The decimal precision.
+ */
+const getDecimalPlaces = (value) => {
+    const [coefficient, exponent = 0] = `${value}`.toLowerCase().split('e');
+    const decimals = (coefficient.split('.')[1] || '').length;
+    return Math.max(0, decimals - Number(exponent));
+};
+
+/**
  * Clamps a value between a minimum and a maximum.
  * @param {number} value The value to clamp.
  * @param {number} [min=0] The minimum value of the clamped range.
@@ -110,20 +121,22 @@ export const random = (a = 1, b = null) =>
  * @param {number} [a=1] The upper bound (exclusive) when `b` is omitted; otherwise the minimum bound (inclusive).
  * @param {number} [b] The maximum value (exclusive).
  * @returns {number} A random integer.
+ * @throws {RangeError} If the bounds contain no integer.
  */
-export const randomInt = (a = 1, b = null) =>
-    Math.floor(
-        random(
-            Math.min(
-                a,
-                isNull(b) ? 0 : b,
-            ),
-            Math.max(
-                a,
-                isNull(b) ? 0 : b,
-            ),
-        ),
+export const randomInt = (a = 1, b = null) => {
+    const min = Math.ceil(
+        Math.min(a, isNull(b) ? 0 : b),
     );
+    const max = Math.ceil(
+        Math.max(a, isNull(b) ? 0 : b),
+    );
+
+    if (min >= max) {
+        throw new RangeError('The bounds do not contain an integer');
+    }
+
+    return Math.floor(random(min, max));
+};
 
 /**
  * Constrains a number to a specified step size.
@@ -138,12 +151,14 @@ export const toStep = (value, step = 0.01) => {
 
     step = Math.abs(step);
 
+    const result = Math.round(value / step) * step;
+    const precision = getDecimalPlaces(step);
+
+    if (precision > 100) {
+        return result;
+    }
+
     return parseFloat(
-        (
-            Math.round(value / step) *
-            step
-        ).toFixed(
-            `${step}`.replace(/\d*\.?/, '').length,
-        ),
+        result.toFixed(precision),
     );
 };

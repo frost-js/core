@@ -279,6 +279,31 @@ describe('Math', function() {
                 assert.strictEqual(value, Math.round(value));
             }
         });
+
+        it('honors fractional bounds', function() {
+            const originalRandom = Math.random;
+
+            try {
+                Math.random = (_) => 0;
+                assert.strictEqual(randomInt(1.2, 5.8), 2);
+
+                Math.random = (_) => 1 - Number.EPSILON;
+                assert.strictEqual(randomInt(1.2, 5.8), 5);
+            } finally {
+                Math.random = originalRandom;
+            }
+        });
+
+        it('rejects bounds without an integer', function() {
+            assert.throws(
+                (_) => randomInt(0.1, 0.9),
+                RangeError,
+            );
+            assert.throws(
+                (_) => randomInt(0, 0),
+                RangeError,
+            );
+        });
     });
 
     describe('#toStep', function() {
@@ -286,6 +311,13 @@ describe('Math', function() {
             assert.strictEqual(
                 toStep(0.123456, .1),
                 0.1,
+            );
+        });
+
+        it('works with scientific notation', function() {
+            assert.strictEqual(
+                toStep(0.00000014, 1e-7),
+                1e-7,
             );
         });
 

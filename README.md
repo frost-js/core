@@ -79,7 +79,7 @@ All utilities are exported from `@fr0st/core` as named ESM exports.
 - `randomValue(array)`: random element from an array, or `null` for an empty array
 - `range(start, end, step = 1)`: numeric sequence from `start` toward `end`
 - `unique(array)`: remove duplicate values
-- `wrap(value)`: normalize a value into an array
+- `wrap(value)`: normalize a value into an array, copying iterable values
 
 ```js
 import { diff, merge, range, unique, wrap } from '@fr0st/core';
@@ -88,6 +88,7 @@ diff([1, 2, 3], [2]); // [1, 3]
 range(0, 5); // [0, 1, 2, 3, 4, 5]
 unique([1, 1, 2]); // [1, 2]
 wrap(undefined); // []
+wrap(new Set([1, 2])); // [1, 2]
 
 const out = [1];
 merge(out, [2, 3]);
@@ -138,7 +139,7 @@ throttled();
 - `lerp(v1, v2, amount)`: linear interpolation
 - `map(value, fromMin, fromMax, toMin, toMax)`: remap a value from one range to another
 - `random(a, b)`: random floating-point value
-- `randomInt(a, b)`: random integer
+- `randomInt(a, b)`: random integer, throwing when the bounds contain no integer
 - `toStep(value, step)`: round a number to a step size
 
 ```js
@@ -156,7 +157,7 @@ toStep(0.123, 0.05); // 0.1
 ### Objects
 
 - `extend(object, ...objects)`: deep-merge values into the first object
-- `flatten(object)`: flatten plain-object paths into dot notation
+- `flatten(object)`: flatten plain-object paths into dot notation while preserving empty objects
 - `forgetDot(object, key)`: delete a path from an object
 - `getDot(object, key, defaultValue)`: read a path from an object
 - `hasDot(object, key)`: test whether a path exists
@@ -173,6 +174,7 @@ flatten({ a: { b: 1 } }); // { 'a.b': 1 }
 pluckDot([{ a: { b: 1 } }, { a: { b: 2 } }], 'a.b'); // [1, 2]
 
 setDot(obj, 'b.c', 3);
+setDot(obj, 'users.*.active', true);
 ```
 
 ### Strings
@@ -184,7 +186,7 @@ setDot(obj, 'b.c', 3);
 - `humanize(string)`: convert identifiers into readable words
 - `kebabCase(string)`: convert text to `kebab-case`
 - `pascalCase(string)`: convert text to `PascalCase`
-- `randomString(length, chars)`: create a random string
+- `randomString(length, chars)`: create a random string from non-empty Unicode characters
 - `snakeCase(string)`: convert text to `snake_case`
 - `unescape(string)`: unescape HTML entities
 
@@ -240,8 +242,11 @@ isPlainObject({}); // true
 
 - `merge()` and `extend()` mutate and return the first argument.
 - `debounce()`, `throttle()`, and `animation()` return wrapped functions with `cancel()`.
+- Function wrappers preserve their call-site `this` value, and delayed wrappers use the most recent call-site value.
 - `range()` uses the absolute value of `step`, returns `[]` for `step === 0`, and includes `end` when the step lands on it exactly.
+- Dot-path reads and checks use own properties only.
 - `setDot()` supports `*` wildcard segments and an `{ overwrite }` option.
+- `randomString()` uses `Math.random()` and must not be used for passwords, tokens, or other security-sensitive values.
 - `random()` and `randomInt()` use an exclusive upper bound.
 
 ## Development

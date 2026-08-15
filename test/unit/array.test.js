@@ -19,6 +19,10 @@ describe('Array', function() {
     });
 
     describe('#intersect', function() {
+        it('returns an empty array without inputs', function() {
+            assert.deepStrictEqual(intersect(), []);
+        });
+
         it('returns the elements that exist in all arrays', function() {
             assert.deepStrictEqual(
                 intersect(
@@ -27,6 +31,13 @@ describe('Array', function() {
                     [1, 2, 3, 4],
                 ),
                 [2, 4],
+            );
+        });
+
+        it('preserves the first array order and removes duplicates', function() {
+            assert.deepStrictEqual(
+                intersect([3, NaN, 2, 3], [NaN, 3]),
+                [3, NaN],
             );
         });
     });
@@ -46,6 +57,21 @@ describe('Array', function() {
                 merge([], [1], [2, 3], [4, 5]),
                 [1, 2, 3, 4, 5],
             );
+        });
+
+        it('can merge an array into itself', function() {
+            const array = [1, 2, 3];
+
+            assert.deepStrictEqual(
+                merge(array, array),
+                [1, 2, 3, 1, 2, 3],
+            );
+        });
+
+        it('merges arrays too large for argument spreading', function() {
+            const array = new Array(200000).fill(1);
+
+            assert.strictEqual(merge([], array).length, array.length);
         });
     });
 
@@ -90,6 +116,17 @@ describe('Array', function() {
             assert.deepStrictEqual(
                 range(0, 1, .1),
                 [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1],
+            );
+        });
+
+        it('includes a floating-point endpoint', function() {
+            assert.deepStrictEqual(
+                range(0, 0.3, 0.1),
+                [0, 0.1, 0.2, 0.3],
+            );
+            assert.deepStrictEqual(
+                range(0.1, 0.3, 0.1),
+                [0.1, 0.2, 0.3],
             );
         });
 
@@ -167,6 +204,17 @@ describe('Array', function() {
         it('returns an array from an array-like', function() {
             assert.deepStrictEqual(
                 wrap(new MockArrayLike()),
+                [1, 2, 3],
+            );
+        });
+
+        it('copies iterable values', function() {
+            assert.deepStrictEqual(
+                wrap(new Set([1, 2, 3])),
+                [1, 2, 3],
+            );
+            assert.deepStrictEqual(
+                wrap(new Uint8Array([1, 2, 3])),
                 [1, 2, 3],
             );
         });

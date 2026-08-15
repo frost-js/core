@@ -188,8 +188,14 @@ describe('String', function() {
         it('escapes minus', function() {
             assert.strictEqual(
                 escapeRegExp('-'),
-                '\\-',
+                '\\x2d',
             );
+        });
+
+        it('produces escapes that compile in Unicode mode', function() {
+            const escaped = escapeRegExp('a-b');
+
+            assert.ok(new RegExp(escaped, 'u').test('a-b'));
         });
 
         it('escapes open curly brace', function() {
@@ -391,6 +397,20 @@ describe('String', function() {
             }
 
             assert.ok(found.size > 100);
+        });
+
+        it('selects complete Unicode code points', function() {
+            assert.strictEqual(
+                randomString(4, '😀'),
+                '😀😀😀😀',
+            );
+        });
+
+        it('rejects an empty character set', function() {
+            assert.throws(
+                (_) => randomString(4, ''),
+                TypeError,
+            );
         });
     });
 

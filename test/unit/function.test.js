@@ -97,6 +97,17 @@ describe('Function', function() {
             }, 32);
         });
 
+        it('uses the most recent context', function(done) {
+            const expected = {};
+            const callback = animation(function() {
+                assert.strictEqual(this, expected);
+                done();
+            });
+
+            callback.call({});
+            callback.call(expected);
+        });
+
         it('allows callback to be cancelled', function(done) {
             let callCount = 0;
             const callback = animation((_) => callCount++);
@@ -122,6 +133,14 @@ describe('Function', function() {
                 8.5,
             );
         });
+
+        it('preserves context', function() {
+            const callback = compose(function(value) {
+                return this.amount + value;
+            });
+
+            assert.strictEqual(callback.call({ amount: 2 }, 3), 5);
+        });
     });
 
     describe('#curry', function() {
@@ -133,6 +152,14 @@ describe('Function', function() {
                 )(2)(5),
                 10,
             );
+        });
+
+        it('preserves context from the first call', function() {
+            const callback = curry(function(a, b) {
+                return this.amount + a + b;
+            });
+
+            assert.strictEqual(callback.call({ amount: 1 }, 2)(3), 6);
         });
     });
 
@@ -297,6 +324,17 @@ describe('Function', function() {
             }, 64);
         });
 
+        it('uses the most recent context', function(done) {
+            const expected = {};
+            const callback = debounce(function() {
+                assert.strictEqual(this, expected);
+                done();
+            }, 1);
+
+            callback.call({});
+            callback.call(expected);
+        });
+
         it('allows callback to be cancelled', function(done) {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 32);
@@ -387,6 +425,28 @@ describe('Function', function() {
 
             assert.strictEqual(callCount, 2);
         });
+
+        it('prevents re-entrant execution and preserves context', function() {
+            let nestedResult;
+            const context = { value: 42 };
+            const callback = once(function() {
+                nestedResult = callback();
+                return this.value;
+            });
+
+            assert.strictEqual(callback.call(context), 42);
+            assert.strictEqual(nestedResult, undefined);
+            assert.strictEqual(callback(), 42);
+        });
+
+        it('caches a returned promise regardless of its outcome', async function() {
+            const result = Promise.reject(new Error('fail'));
+            const callback = once((_) => result);
+
+            assert.strictEqual(callback(), result);
+            assert.strictEqual(callback(), result);
+            await assert.rejects(result, /fail/u);
+        });
     });
 
     describe('#partial', function() {
@@ -400,6 +460,14 @@ describe('Function', function() {
                 10,
             );
         });
+
+        it('preserves context', function() {
+            const callback = partial(function(amount) {
+                return this.value + amount;
+            }, 2);
+
+            assert.strictEqual(callback.call({ value: 3 }), 5);
+        });
     });
 
     describe('#pipe', function() {
@@ -412,6 +480,14 @@ describe('Function', function() {
                 )(5),
                 13.5,
             );
+        });
+
+        it('preserves context', function() {
+            const callback = pipe(function(value) {
+                return this.amount + value;
+            });
+
+            assert.strictEqual(callback.call({ amount: 2 }, 3), 5);
         });
     });
 
@@ -535,6 +611,17 @@ describe('Function', function() {
                 assert.strictEqual(callCount, 1);
                 done();
             }, 64);
+        });
+
+        it('uses the most recent context', function(done) {
+            const expected = {};
+            const callback = throttle(function() {
+                assert.strictEqual(this, expected);
+                done();
+            }, 1, { leading: false });
+
+            callback.call({});
+            callback.call(expected);
         });
 
         it('allows callback to be cancelled', function(done) {

@@ -82,7 +82,12 @@ export const escape = (string) =>
  * @returns {string} The escaped string.
  */
 export const escapeRegExp = (string) =>
-    string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    string.replace(
+        /[-/\\^$*+?.()|[\]{}]/g,
+        (match) => match === '-' ?
+            '\\x2d' :
+            `\\${match}`,
+    );
 
 /**
  * Converts a string to a humanized form.
@@ -121,18 +126,25 @@ export const pascalCase = (string) =>
 
 /**
  * Creates a random string.
- * @param {number} [length=16] The length of the output string.
- * @param {string} [chars=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789] The characters to generate the string from.
+ * @param {number} [length=16] The number of characters in the output string.
+ * @param {string} [chars=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789] The non-empty Unicode characters to generate the string from.
+ * @throws {TypeError} If chars is empty.
  * @returns {string} The random string.
  */
-export const randomString = (length = 16, chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') =>
-    new Array(length)
+export const randomString = (length = 16, chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') => {
+    const characters = Array.from(chars);
+    if (!characters.length) {
+        throw new TypeError('chars must not be empty');
+    }
+
+    return new Array(length)
         .fill()
         .map(
             (_) =>
-                chars[randomInt(chars.length)],
+                characters[randomInt(characters.length)],
         )
         .join('');
+};
 
 /**
  * Converts a string to snake_case.

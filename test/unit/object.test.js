@@ -94,6 +94,15 @@ describe('Object', function() {
                 { a: 1 },
             );
         });
+
+        it('copies prototype-shaped keys without changing the prototype', function() {
+            const source = JSON.parse('{"__proto__":{"value":1},"constructor":{"prototype":{"value":2}},"prototype":{"value":3}}');
+            const result = extend({}, source);
+
+            assert.deepStrictEqual(result, source);
+            assert.strictEqual(Object.getPrototypeOf(result), Object.prototype);
+            assert.strictEqual({}.value, undefined);
+        });
     });
 
     describe('#flatten', function() {
@@ -120,6 +129,17 @@ describe('Object', function() {
             obj.a = 3;
 
             assert.deepStrictEqual(flattened, { a: 1, b: 2 });
+        });
+
+        it('preserves empty objects and __proto__ keys', function() {
+            const flattened = flatten(
+                JSON.parse('{"empty":{},"__proto__":"value"}'),
+            );
+
+            assert.deepStrictEqual(Object.keys(flattened), ['empty', '__proto__']);
+            assert.deepStrictEqual(flattened.empty, {});
+            assert.strictEqual(flattened.__proto__, 'value');
+            assert.strictEqual(Object.getPrototypeOf(flattened), Object.prototype);
         });
     });
 
@@ -189,6 +209,13 @@ describe('Object', function() {
                 undefined,
             );
         });
+
+        it('does not retrieve inherited properties', function() {
+            assert.strictEqual(
+                getDot({}, 'toString', 'fallback'),
+                'fallback',
+            );
+        });
     });
 
     describe('#hasDot', function() {
@@ -230,6 +257,10 @@ describe('Object', function() {
                 ),
                 false,
             );
+        });
+
+        it('does not find inherited properties', function() {
+            assert.strictEqual(hasDot({}, 'toString'), false);
         });
     });
 
@@ -326,6 +357,40 @@ describe('Object', function() {
                 obj,
                 { a: 1, b: { c: 2, d: 3, e: 4 } },
             );
+        });
+
+        it('uses wildcard keys without reparsing them', function() {
+            const obj = {
+                '*': { active: false },
+                'a.b': { active: false },
+            };
+
+            setDot(obj, '*.active', true);
+
+            assert.deepStrictEqual(obj, {
+                '*': { active: true },
+                'a.b': { active: true },
+            });
+        });
+
+        it('does not overwrite intermediate values when disabled', function() {
+            const obj = { a: 1 };
+
+            setDot(obj, 'a.b', 2, { overwrite: false });
+
+            assert.deepStrictEqual(obj, { a: 1 });
+        });
+
+        it('creates prototype-shaped paths as own data', function() {
+            const obj = {};
+
+            setDot(obj, '__proto__.polluted', true);
+            setDot(obj, 'constructor.prototype.value', true);
+
+            assert.strictEqual(Object.getPrototypeOf(obj), Object.prototype);
+            assert.strictEqual(Object.prototype.polluted, undefined);
+            assert.deepStrictEqual(obj.__proto__, { polluted: true });
+            assert.deepStrictEqual(obj.constructor, { prototype: { value: true } });
         });
     });
 });

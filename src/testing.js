@@ -147,8 +147,11 @@ export const isObject = (value) =>
  * @returns {boolean} Whether the value is a plain object.
  */
 export const isPlainObject = (value) =>
-    !!value &&
-    value.constructor === Object;
+    isObject(value) &&
+    (
+        Object.getPrototypeOf(value) === null ||
+        Object.getPrototypeOf(value) === Object.prototype
+    );
 
 /**
  * Checks whether a value is a ShadowRoot.
