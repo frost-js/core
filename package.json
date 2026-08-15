@@ -46,8 +46,8 @@
         "build": "npm run js-compile && npm run js-minify",
         "js-compile": "rollup --config",
         "js-lint": "eslint",
-        "js-minify": "terser --compress passes=2 --mangle --source-map \"content=dist/frost-core.js.map\" --output dist/frost-core.min.js dist/frost-core.js",
-        "test": "mocha \"test/**/*.test.js\""
+        "js-minify": "terser --compress passes=2 --mangle --source-map \"content=dist/frost-core.js.map,url=frost-core.min.js.map\" --output dist/frost-core.min.js dist/frost-core.js",
+        "test": "mocha --forbid-only \"test/**/*.test.js\""
     },
     "devDependencies": {
         "@fr0st/eslint-config": "^3.0.0",

@@ -44,5 +44,8 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify generated bundles are current
+        run: git diff --exit-code -- dist
+
       - name: Validate package contents
         run: npm pack --dry-run
