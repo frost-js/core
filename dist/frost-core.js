@@ -530,7 +530,7 @@
      * @returns {number} The request ID.
      */
     const _requestAnimationFrame = isBrowser ?
-        (...args) => window.requestAnimationFrame(...args) :
+        (callback) => window.requestAnimationFrame(callback) :
         (callback) => setTimeout(callback, 1000 / 60);
 
     /**
