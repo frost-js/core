@@ -1,6 +1,6 @@
 {
     "name": "@fr0st/core",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "description": "Small, focused utility library for arrays, functions, math, objects, strings, and type checks.",
     "keywords": [
         "utilities",
@@ -55,7 +55,7 @@
         "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
-        "@fr0st/eslint-config": "^5.0.1",
+        "@fr0st/eslint-config": "^5.0.2",
         "@vitest/coverage-v8": "^4.1.11",
         "eslint": "^10.9.1",
         "vite": "^8.2.2",

@@ -24,7 +24,11 @@ Small, focused utilities for arrays, functions, math, objects, strings, and type
 npm i @fr0st/core
 ```
 
-FrostCore is ESM-only. Use `import` syntax in Node and bundlers.
+FrostCore's package entry point is ESM-only. Use `import` syntax in Node and bundlers.
+
+```js
+import { clamp, randomInt } from '@fr0st/core';
+```
 
 ### Browser (ESM)
 
@@ -51,6 +55,8 @@ Load the bundle from your own copy or a CDN:
     console.log(clamp(randomInt(10), 0, 9));
 </script>
 ```
+
+The package root resolves to the prebuilt ESM bundle. Published files under `dist/` and `src/` are also available through matching package subpaths.
 
 ## Quick Start
 
