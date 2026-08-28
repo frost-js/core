@@ -1,6 +1,6 @@
 {
     "name": "@fr0st/core",
-    "version": "3.0.6",
+    "version": "3.1.0",
     "description": "Small, focused utility library for arrays, functions, math, objects, strings, and type checks.",
     "keywords": [
         "utilities",
@@ -31,11 +31,17 @@
     "sideEffects": false,
     "type": "module",
     "exports": {
-        ".": "./src/index.js"
+        ".": {
+            "import": "./dist/frost-core.esm.js",
+            "default": "./dist/frost-core.esm.js"
+        },
+        "./dist/*": "./dist/*",
+        "./src/*": "./src/*"
     },
-    "main": "src/index.js",
-    "jsdelivr": "dist/frost-core.min.js",
-    "unpkg": "dist/frost-core.min.js",
+    "main": "./dist/frost-core.esm.js",
+    "jsdelivr": "./dist/frost-core.min.js",
+    "unpkg": "./dist/frost-core.min.js",
+    "module": "./dist/frost-core.esm.js",
     "files": [
         "dist",
         "LICENSE",
@@ -43,18 +49,17 @@
         "src"
     ],
     "scripts": {
-        "build": "npm run bundle && npm run minify",
-        "bundle": "rollup --config",
+        "build": "vite build",
         "lint": "eslint",
-        "minify": "terser --compress passes=2 --mangle --source-map \"content=dist/frost-core.js.map,url=frost-core.min.js.map\" --output dist/frost-core.min.js dist/frost-core.js",
-        "test": "mocha --forbid-only \"test/**/*.test.js\""
+        "test": "vitest run",
+        "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
-        "@fr0st/eslint-config": "^5.0.0",
-        "eslint": "^10.8.1",
-        "mocha": "^11.8.0",
-        "rollup": "^4.62.4",
-        "terser": "^5.50.0"
+        "@fr0st/eslint-config": "^5.0.1",
+        "@vitest/coverage-v8": "^4.1.11",
+        "eslint": "^10.9.1",
+        "vite": "^8.2.2",
+        "vitest": "^4.1.11"
     },
     "engines": {
         "node": "^20.19.0 || ^22.13.0 || >=24"

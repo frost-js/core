@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'mocha';
+import { describe, it } from 'vitest';
 import { isArrayLike, isNumeric, isPlainObject } from '../../../src/index.js';
 import { mockArray, mockFunction, mockNumber, mockNumericString, mockPlainObject, mockString } from '../../support/fixtures.js';
 import MockArrayLike from '../../support/mocks/mock-array-like.js';

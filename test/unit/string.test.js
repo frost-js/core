@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'mocha';
+import { describe, it } from 'vitest';
 import { camelCase, capitalize, escape, escapeRegExp, humanize, kebabCase, pascalCase, randomString, snakeCase, unescape } from '../../src/index.js';
 
 describe('String', function() {

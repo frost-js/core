@@ -1,48 +1,50 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'mocha';
+import { afterEach, beforeEach, describe, it, vi } from 'vitest';
 import { animation, compose, curry, debounce, evaluate, once, partial, pipe, random, throttle, times } from '../../src/index.js';
 
 describe('Function', function() {
+    beforeEach(function() {
+        vi.useFakeTimers();
+    });
+
+    afterEach(function() {
+        vi.useRealTimers();
+    });
+
     describe('#animation', function() {
-        it('returns an animation function', function(done) {
+        it('returns an animation function', function() {
             let callCount = 0;
             const callback = animation((_) => callCount++);
 
             callback();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 32);
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('only executes once per animation frame', function(done) {
+        it('only executes once per animation frame', function() {
             let callCount = 0;
             const callback = animation((_) => callCount++);
 
             callback();
             callback();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 32);
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('executes for each animation frame', function(done) {
+        it('executes for each animation frame', function() {
             let callCount = 0;
             const callback = animation((_) => callCount++);
 
             callback();
             setTimeout(callback, 32);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 2);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 2);
         });
 
-        it('works without leading argument', function(done) {
+        it('works without leading argument', function() {
             let finished = false;
             let callCount = 0;
             const callback = animation((_) => {
@@ -54,13 +56,11 @@ describe('Function', function() {
             callback();
             finished = true;
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 32);
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('works with leading argument', function(done) {
+        it('works with leading argument', function() {
             let finished = false;
             let callCount = 0;
             const callback = animation((_) => {
@@ -72,13 +72,11 @@ describe('Function', function() {
             callback();
             finished = true;
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 32);
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('uses the most recent arguments', function(done) {
+        it('uses the most recent arguments', function() {
             let callCount = 0;
             const callback = animation((finished) => {
                 if (!finished) {
@@ -91,34 +89,33 @@ describe('Function', function() {
             callback();
             callback(true);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 32);
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('uses the most recent context', function(done) {
+        it('uses the most recent context', function() {
             const expected = {};
+            let actual;
             const callback = animation(function() {
-                assert.strictEqual(this, expected);
-                done();
+                actual = this;
             });
 
             callback.call({});
             callback.call(expected);
+
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(actual, expected);
         });
 
-        it('allows callback to be cancelled', function(done) {
+        it('allows callback to be cancelled', function() {
             let callCount = 0;
             const callback = animation((_) => callCount++);
 
             callback();
             callback.cancel();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 0);
-                done();
-            }, 32);
+            vi.advanceTimersByTime(32);
+            assert.strictEqual(callCount, 0);
         });
     });
 
@@ -164,45 +161,39 @@ describe('Function', function() {
     });
 
     describe('#debounce', function() {
-        it('returns a debounced function', function(done) {
+        it('returns a debounced function', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 32);
 
             debounced();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('only executes once per wait period', function(done) {
+        it('only executes once per wait period', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 32);
 
             debounced();
             debounced();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('executes for each wait period', function(done) {
+        it('executes for each wait period', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 16);
 
             debounced();
             setTimeout(debounced, 16);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 2);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 2);
         });
 
-        it('only executes after wait period', function(done) {
+        it('only executes after wait period', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 16);
 
@@ -210,17 +201,14 @@ describe('Function', function() {
             setTimeout(debounced, 8);
             setTimeout(debounced, 16);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 0);
-            }, 32);
+            vi.advanceTimersByTime(31);
+            assert.strictEqual(callCount, 0);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(33);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('works with leading only', function(done) {
+        it('works with leading only', function() {
             let finished = false;
             let callCount = 0;
             const debounced = debounce((_) => {
@@ -233,13 +221,11 @@ describe('Function', function() {
             setTimeout(debounced, 32);
             finished = true;
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('works with trailing only', function(done) {
+        it('works with trailing only', function() {
             let finished = false;
             let callCount = 0;
             const debounced = debounce((_) => {
@@ -253,26 +239,22 @@ describe('Function', function() {
             debounced();
             setTimeout(debounced, 32);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('works with leading and trailing', function(done) {
+        it('works with leading and trailing', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 32, { leading: true, trailing: true });
 
             debounced();
             debounced();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 2);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 2);
         });
 
-        it('does not execute a stale trailing call after a new leading execution', function(done) {
+        it('does not execute a stale trailing call after a new leading execution', function() {
             const calls = [];
             const debounced = debounce((value) => calls.push(value), 200, { leading: true, trailing: true });
 
@@ -281,33 +263,29 @@ describe('Function', function() {
 
             setTimeout((_) => debounced(3), 210);
 
-            setTimeout((_) => {
-                const index3 = calls.indexOf(3);
-                assert.notStrictEqual(index3, -1);
+            vi.advanceTimersByTime(450);
 
-                assert.strictEqual(
-                    calls.slice(index3 + 1).includes(2),
-                    false,
-                );
+            const index3 = calls.indexOf(3);
+            assert.notStrictEqual(index3, -1);
 
-                done();
-            }, 450);
+            assert.strictEqual(
+                calls.slice(index3 + 1).includes(2),
+                false,
+            );
         });
 
-        it('works without leading or trailing', function(done) {
+        it('works without leading or trailing', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 32, { trailing: false });
 
             debounced();
             debounced();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 0);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 0);
         });
 
-        it('uses the most recent arguments', function(done) {
+        it('uses the most recent arguments', function() {
             let callCount = 0;
             const debounced = debounce((finished) => {
                 if (finished) {
@@ -318,34 +296,33 @@ describe('Function', function() {
             debounced();
             debounced(true);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('uses the most recent context', function(done) {
+        it('uses the most recent context', function() {
             const expected = {};
+            let actual;
             const callback = debounce(function() {
-                assert.strictEqual(this, expected);
-                done();
+                actual = this;
             }, 1);
 
             callback.call({});
             callback.call(expected);
+
+            vi.advanceTimersByTime(1);
+            assert.strictEqual(actual, expected);
         });
 
-        it('allows callback to be cancelled', function(done) {
+        it('allows callback to be cancelled', function() {
             let callCount = 0;
             const debounced = debounce((_) => callCount++, 32);
 
             debounced();
             debounced.cancel();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 0);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 0);
         });
     });
 
@@ -492,19 +469,17 @@ describe('Function', function() {
     });
 
     describe('#throttle', function() {
-        it('returns a throttled function', function(done) {
+        it('returns a throttled function', function() {
             let callCount = 0;
             const throttled = throttle((_) => callCount++, 32);
 
             throttled();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('only executes once per wait period', function(done) {
+        it('only executes once per wait period', function() {
             let callCount = 0;
             const throttled = throttle((_) => callCount++, 32);
 
@@ -512,26 +487,22 @@ describe('Function', function() {
             throttled();
             throttled();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 2);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 2);
         });
 
-        it('executes for each wait period', function(done) {
+        it('executes for each wait period', function() {
             let callCount = 0;
             const throttled = throttle((_) => callCount++, 32);
 
             throttled();
             setTimeout(throttled, 32);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 2);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 2);
         });
 
-        it('works with leading only', function(done) {
+        it('works with leading only', function() {
             let finished = false;
             let callCount = 0;
             const throttled = throttle((_) => {
@@ -544,13 +515,11 @@ describe('Function', function() {
             setTimeout(throttled, 32);
             finished = true;
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('works with trailing only', function(done) {
+        it('works with trailing only', function() {
             let finished = false;
             let callCount = 0;
             const throttled = throttle((_) => {
@@ -564,39 +533,33 @@ describe('Function', function() {
             throttled();
             setTimeout(throttled, 32);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('works with leading and trailing', function(done) {
+        it('works with leading and trailing', function() {
             let callCount = 0;
             const throttled = throttle((_) => callCount++, 32);
 
             throttled();
             throttled();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 2);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 2);
         });
 
-        it('works without leading or trailing', function(done) {
+        it('works without leading or trailing', function() {
             let callCount = 0;
             const throttled = throttle((_) => callCount++, 32, { leading: false, trailing: false });
 
             throttled();
             throttled();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 0);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 0);
         });
 
-        it('uses the most recent arguments', function(done) {
+        it('uses the most recent arguments', function() {
             let callCount = 0;
             const throttled = throttle((finished) => {
                 if (finished) {
@@ -607,24 +570,25 @@ describe('Function', function() {
             throttled();
             throttled(true);
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
 
-        it('uses the most recent context', function(done) {
+        it('uses the most recent context', function() {
             const expected = {};
+            let actual;
             const callback = throttle(function() {
-                assert.strictEqual(this, expected);
-                done();
+                actual = this;
             }, 1, { leading: false });
 
             callback.call({});
             callback.call(expected);
+
+            vi.advanceTimersByTime(1);
+            assert.strictEqual(actual, expected);
         });
 
-        it('allows callback to be cancelled', function(done) {
+        it('allows callback to be cancelled', function() {
             let callCount = 0;
             const throttled = throttle((_) => callCount++, 32);
 
@@ -632,10 +596,8 @@ describe('Function', function() {
             throttled();
             throttled.cancel();
 
-            setTimeout((_) => {
-                assert.strictEqual(callCount, 1);
-                done();
-            }, 64);
+            vi.advanceTimersByTime(64);
+            assert.strictEqual(callCount, 1);
         });
     });
 

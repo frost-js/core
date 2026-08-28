@@ -1,9 +1,10 @@
 # FrostCore
 
 [![CI](https://github.com/elusivecodes/FrostCore/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/elusivecodes/FrostCore/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/elusivecodes/FrostCore/branch/main/graph/badge.svg)](https://codecov.io/gh/elusivecodes/FrostCore)
 [![npm version](https://img.shields.io/npm/v/%40fr0st%2Fcore?style=flat-square)](https://www.npmjs.com/package/@fr0st/core)
 [![npm downloads](https://img.shields.io/npm/dm/%40fr0st%2Fcore?style=flat-square)](https://www.npmjs.com/package/@fr0st/core)
-[![minzipped size](https://img.shields.io/bundlejs/size/%40fr0st/core?format=minzip&style=flat-square)](https://bundlejs.com/?q=@fr0st/core)
+[![JS gzip size](https://img.badgesize.io/elusivecodes/FrostCore/main/dist/frost-core.min.js?compression=gzip&label=JS%20gzip%20size&style=flat-square)](https://github.com/elusivecodes/FrostCore/blob/main/dist/frost-core.min.js)
 [![license](https://img.shields.io/github/license/elusivecodes/FrostCore?style=flat-square)](./LICENSE)
 
 Small, focused utilities for arrays, functions, math, objects, strings, and type checks. FrostCore has zero runtime dependencies, works in Node and bundlers, and also ships a browser-friendly UMD bundle that exposes `globalThis._`.
@@ -11,7 +12,7 @@ Small, focused utilities for arrays, functions, math, objects, strings, and type
 ## Highlights
 
 - Named exports for tree-shaking
-- Browser UMD bundle in `dist/`
+- Prebuilt ESM and UMD bundles in `dist/`
 - No runtime dependencies
 - JSDoc-powered IntelliSense
 
@@ -24,6 +25,18 @@ npm i @fr0st/core
 ```
 
 FrostCore is ESM-only. Use `import` syntax in Node and bundlers.
+
+### Browser (ESM)
+
+Import the minified ESM bundle directly from a CDN:
+
+```html
+<script type="module">
+    import { clamp, randomInt } from 'https://cdn.jsdelivr.net/npm/@fr0st/core@latest/dist/frost-core.esm.min.js';
+
+    console.log(clamp(randomInt(10), 0, 9));
+</script>
+```
 
 ### Browser (UMD)
 
