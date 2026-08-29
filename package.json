@@ -1,6 +1,6 @@
 {
     "name": "@fr0st/core",
-    "version": "3.1.1",
+    "version": "3.1.2",
     "description": "Small, focused utility library for arrays, functions, math, objects, strings, and type checks.",
     "keywords": [
         "utilities",
@@ -17,14 +17,14 @@
         "type-check",
         "testing"
     ],
-    "homepage": "https://github.com/elusivecodes/FrostCore",
+    "homepage": "https://github.com/frost-js/core",
     "bugs": {
-        "url": "https://github.com/elusivecodes/FrostCore/issues",
+        "url": "https://github.com/frost-js/core/issues",
         "email": "elusivecodes@gmail.com"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/elusivecodes/FrostCore.git"
+        "url": "git+https://github.com/frost-js/core.git"
     },
     "license": "MIT",
     "author": "Elusive <elusivecodes@gmail.com>",
@@ -55,7 +55,7 @@
         "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
-        "@fr0st/eslint-config": "^5.0.2",
+        "@fr0st/eslint-config": "^5.0.3",
         "@vitest/coverage-v8": "^4.1.11",
         "eslint": "^10.9.1",
         "vite": "^8.2.2",

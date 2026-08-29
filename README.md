@@ -1,13 +1,13 @@
-# FrostCore
+# Frost Core
 
-[![CI](https://github.com/elusivecodes/FrostCore/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/elusivecodes/FrostCore/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/elusivecodes/FrostCore/branch/main/graph/badge.svg)](https://codecov.io/gh/elusivecodes/FrostCore)
+[![CI](https://github.com/frost-js/core/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/frost-js/core/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/frost-js/core/branch/main/graph/badge.svg)](https://codecov.io/gh/frost-js/core)
 [![npm version](https://img.shields.io/npm/v/%40fr0st%2Fcore?style=flat-square)](https://www.npmjs.com/package/@fr0st/core)
 [![npm downloads](https://img.shields.io/npm/dm/%40fr0st%2Fcore?style=flat-square)](https://www.npmjs.com/package/@fr0st/core)
-[![JS gzip size](https://img.badgesize.io/elusivecodes/FrostCore/main/dist/frost-core.min.js?compression=gzip&label=JS%20gzip%20size&style=flat-square)](https://github.com/elusivecodes/FrostCore/blob/main/dist/frost-core.min.js)
-[![license](https://img.shields.io/github/license/elusivecodes/FrostCore?style=flat-square)](./LICENSE)
+[![JS gzip size](https://img.badgesize.io/frost-js/core/main/dist/frost-core.min.js?compression=gzip&label=JS%20gzip%20size&style=flat-square)](https://github.com/frost-js/core/blob/main/dist/frost-core.min.js)
+[![license](https://img.shields.io/github/license/frost-js/core?style=flat-square)](./LICENSE)
 
-Small, focused utilities for arrays, functions, math, objects, strings, and type checks. FrostCore has zero runtime dependencies, works in Node and bundlers, and also ships a browser-friendly UMD bundle that exposes `globalThis._`.
+Small, focused utilities for arrays, functions, math, objects, strings, and type checks. Frost Core has zero runtime dependencies, works in Node and bundlers, and also ships a browser-friendly UMD bundle that exposes `globalThis._`.
 
 ## Highlights
 
@@ -24,7 +24,7 @@ Small, focused utilities for arrays, functions, math, objects, strings, and type
 npm i @fr0st/core
 ```
 
-FrostCore's package entry point is ESM-only. Use `import` syntax in Node and bundlers.
+Frost Core's package entry point is ESM-only. Use `import` syntax in Node and bundlers.
 
 ```js
 import { clamp, randomInt } from '@fr0st/core';
@@ -84,7 +84,7 @@ console.log(clamp(14, 0, 10)); // 10
 save();
 ```
 
-TypeScript note: FrostCore is written in JavaScript and uses JSDoc types, which most editors surface as IntelliSense.
+TypeScript note: Frost Core is written in JavaScript and uses JSDoc types, which most editors surface as IntelliSense.
 
 ## API
 
@@ -278,4 +278,4 @@ npm run build
 
 ## License
 
-FrostCore is released under the [MIT License](./LICENSE).
+Frost Core is released under the [MIT License](./LICENSE).
