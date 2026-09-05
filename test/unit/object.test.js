@@ -92,6 +92,16 @@ describe('Object', function() {
             );
         });
 
+        it('preserves sparse array lengths without shortening existing arrays', function() {
+            const source = { items: new Array(3) };
+
+            assert.deepStrictEqual(extend({}, source), source);
+            assert.deepStrictEqual(
+                extend({ items: [1, 2, 3, 4] }, source),
+                { items: [1, 2, 3, 4] },
+            );
+        });
+
         it('does not copy inherited properties', function() {
             function TestObject() {
                 this.a = 1;

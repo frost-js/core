@@ -654,6 +654,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 				const currentValue = hasOwn(object, key) ? object[key] : void 0;
 				if (isArray(value)) {
 					const target = isArray(currentValue) ? currentValue : [];
+					target.length = Math.max(target.length, value.length);
 					value = extend(target, value);
 				} else if (isPlainObject(value)) {
 					const target = isPlainObject(currentValue) ? currentValue : {};

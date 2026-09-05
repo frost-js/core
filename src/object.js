@@ -99,6 +99,7 @@ export const extend = (object, ...objects) => {
 
             if (isArray(value)) {
                 const target = isArray(currentValue) ? currentValue : [];
+                target.length = Math.max(target.length, value.length);
                 value = extend(target, value);
             } else if (isPlainObject(value)) {
                 const target = isPlainObject(currentValue) ? currentValue : {};
