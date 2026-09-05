@@ -4,9 +4,22 @@ import { isArray, isObject, isPlainObject } from './testing.js';
  * Object methods
  */
 
+/**
+ * Checks whether an object has an own property.
+ * @param {object} object The input object.
+ * @param {string} key The key to check.
+ * @returns {boolean} Whether the property belongs to the object itself.
+ */
 const hasOwn = (object, key) =>
     Object.prototype.hasOwnProperty.call(object, key);
 
+/**
+ * Assigns an own property, creating new properties without invoking inherited setters.
+ * @param {object} object The object to modify.
+ * @param {string} key The key to assign.
+ * @param {*} value The value to assign.
+ * @returns {void} Nothing.
+ */
 const assignOwn = (object, key, value) => {
     if (hasOwn(object, key)) {
         object[key] = value;
@@ -25,6 +38,14 @@ const assignOwn = (object, key, value) => {
     );
 };
 
+/**
+ * Sets a value using path segments, including wildcards.
+ * @param {object} object The object to modify.
+ * @param {string[]} keys The remaining path segments.
+ * @param {*} value The value to assign.
+ * @param {boolean} overwrite Whether existing values may be overwritten.
+ * @returns {void} Nothing.
+ */
 const setDotSegments = (object, keys, value, overwrite) => {
     const [key, ...remainingKeys] = keys;
 

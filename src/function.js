@@ -10,12 +10,16 @@ import { isFunction, isUndefined } from './testing.js';
  * @typedef {((...args: Parameters<T>) => void) & { cancel: () => void }} CancelableWrapper
  */
 
+/**
+ * Whether the browser animation frame API is available.
+ * @type {boolean}
+ */
 const isBrowser = typeof window !== 'undefined' && 'requestAnimationFrame' in window;
 
 /**
- * Schedules a callback on the next animation frame.
+ * Schedules a callback on the next animation frame, using a timer outside browsers.
  * @param {Function} callback The callback to execute.
- * @returns {number} The request ID.
+ * @returns {number|ReturnType<typeof setTimeout>} The animation frame ID or timer handle.
  */
 const _requestAnimationFrame = isBrowser ?
     (callback) => window.requestAnimationFrame(callback) :

@@ -342,11 +342,15 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @template {(...args: any[]) => any} T
 	* @typedef {((...args: Parameters<T>) => void) & { cancel: () => void }} CancelableWrapper
 	*/
+	/**
+	* Whether the browser animation frame API is available.
+	* @type {boolean}
+	*/
 	var isBrowser = typeof window !== "undefined" && "requestAnimationFrame" in window;
 	/**
-	* Schedules a callback on the next animation frame.
+	* Schedules a callback on the next animation frame, using a timer outside browsers.
 	* @param {Function} callback The callback to execute.
-	* @returns {number} The request ID.
+	* @returns {number|ReturnType<typeof setTimeout>} The animation frame ID or timer handle.
 	*/
 	var _requestAnimationFrame = isBrowser ? (callback) => window.requestAnimationFrame(callback) : (callback) => setTimeout(callback, 1e3 / 60);
 	/**
@@ -598,7 +602,20 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /**
 	* Object methods
 	*/
+	/**
+	* Checks whether an object has an own property.
+	* @param {object} object The input object.
+	* @param {string} key The key to check.
+	* @returns {boolean} Whether the property belongs to the object itself.
+	*/
 	var hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+	/**
+	* Assigns an own property, creating new properties without invoking inherited setters.
+	* @param {object} object The object to modify.
+	* @param {string} key The key to assign.
+	* @param {*} value The value to assign.
+	* @returns {void} Nothing.
+	*/
 	var assignOwn = (object, key, value) => {
 		if (hasOwn(object, key)) {
 			object[key] = value;
@@ -611,6 +628,14 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			writable: true
 		});
 	};
+	/**
+	* Sets a value using path segments, including wildcards.
+	* @param {object} object The object to modify.
+	* @param {string[]} keys The remaining path segments.
+	* @param {*} value The value to assign.
+	* @param {boolean} overwrite Whether existing values may be overwritten.
+	* @returns {void} Nothing.
+	*/
 	var setDotSegments = (object, keys, value, overwrite) => {
 		const [key, ...remainingKeys] = keys;
 		if (key === "*") {
