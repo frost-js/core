@@ -613,7 +613,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	};
 	var setDotSegments = (object, keys, value, overwrite) => {
 		const [key, ...remainingKeys] = keys;
-		if (!key) return;
 		if (key === "*") {
 			for (const childKey of Object.keys(object)) {
 				if (!remainingKeys.length) {
@@ -687,7 +686,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	*/
 	var forgetDot = (object, key) => {
 		const keys = key.split(".");
-		while (key = keys.shift()) {
+		while (keys.length) {
+			key = keys.shift();
 			if (!isObject(object) || !hasOwn(object, key)) break;
 			if (keys.length) object = object[key];
 			else delete object[key];

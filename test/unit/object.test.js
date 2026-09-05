@@ -188,6 +188,16 @@ describe('Object', function() {
             );
         });
 
+        it('handles empty path segments', function() {
+            const obj = { user: { '': { name: 'Ada' } } };
+            forgetDot(obj, 'user..name');
+
+            assert.deepStrictEqual(
+                obj,
+                { user: { '': {} } },
+            );
+        });
+
         it('works with properties that do not exist', function() {
             const obj = { a: 1, b: 2 };
             forgetDot(obj, 'c');
@@ -360,6 +370,16 @@ describe('Object', function() {
             assert.deepStrictEqual(
                 obj,
                 { a: 1, b: { c: 2 } },
+            );
+        });
+
+        it('handles empty path segments', function() {
+            const obj = {};
+            setDot(obj, 'user..name', 'Ada');
+
+            assert.deepStrictEqual(
+                obj,
+                { user: { '': { name: 'Ada' } } },
             );
         });
 

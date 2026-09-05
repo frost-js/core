@@ -27,9 +27,6 @@ const assignOwn = (object, key, value) => {
 
 const setDotSegments = (object, keys, value, overwrite) => {
     const [key, ...remainingKeys] = keys;
-    if (!key) {
-        return;
-    }
 
     if (key === '*') {
         for (const childKey of Object.keys(object)) {
@@ -145,7 +142,9 @@ export const flatten = (object, prefix = '') =>
  */
 export const forgetDot = (object, key) => {
     const keys = key.split('.');
-    while ((key = keys.shift())) {
+    while (keys.length) {
+        key = keys.shift();
+
         if (
             !isObject(object) ||
             !hasOwn(object, key)
