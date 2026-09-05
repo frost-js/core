@@ -90,7 +90,11 @@ var isObject = (value) => !!value && value === Object(value);
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a plain object.
 */
-var isPlainObject = (value) => isObject(value) && (Object.getPrototypeOf(value) === null || Object.getPrototypeOf(value) === Object.prototype);
+var isPlainObject = (value) => {
+	if (!isObject(value)) return false;
+	const prototype = Object.getPrototypeOf(value);
+	return prototype === null || Object.getPrototypeOf(prototype) === null;
+};
 /**
 * Checks whether a value is a ShadowRoot.
 * @param {*} value The value to test.

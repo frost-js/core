@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { runInNewContext } from 'node:vm';
 import { describe, it } from 'vitest';
 import { extend, flatten, forgetDot, getDot, hasDot, pluckDot, setDot } from '../../src/index.js';
 
@@ -67,6 +68,15 @@ describe('Object', function() {
                 result,
                 { a: 1, b: { c: 1 } },
             );
+        });
+
+        it('deep-merges objects from another context without retaining source references', function() {
+            const source = runInNewContext('({ nested: { value: 1 } })');
+            const result = extend({ nested: { existing: true } }, source);
+
+            source.nested.value = 2;
+
+            assert.deepStrictEqual(result, { nested: { existing: true, value: 1 } });
         });
 
         it('does not copy arrays by reference', function() {
