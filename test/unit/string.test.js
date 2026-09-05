@@ -11,6 +11,20 @@ describe('String', function() {
             );
         });
 
+        it('works from upper case', function() {
+            assert.strictEqual(
+                camelCase('HELLO WORLD'),
+                'helloWorld',
+            );
+        });
+
+        it('separates acronyms from following words', function() {
+            assert.strictEqual(
+                camelCase('XMLParser'),
+                'xmlParser',
+            );
+        });
+
         it('works from kebab-case', function() {
             assert.strictEqual(
                 camelCase('this-is-a-sample-string'),
@@ -249,6 +263,13 @@ describe('String', function() {
             );
         });
 
+        it('works from upper case', function() {
+            assert.strictEqual(
+                humanize('HELLO WORLD'),
+                'Hello world',
+            );
+        });
+
         it('works from camelCase', function() {
             assert.strictEqual(
                 humanize('thisIsASampleString'),
@@ -293,6 +314,13 @@ describe('String', function() {
             );
         });
 
+        it('works from upper case', function() {
+            assert.strictEqual(
+                kebabCase('HELLO WORLD'),
+                'hello-world',
+            );
+        });
+
         it('works from camelCase', function() {
             assert.strictEqual(
                 kebabCase('thisIsASampleString'),
@@ -327,6 +355,13 @@ describe('String', function() {
             assert.strictEqual(
                 pascalCase('This is a sample string'),
                 'ThisIsASampleString',
+            );
+        });
+
+        it('works from upper case', function() {
+            assert.strictEqual(
+                pascalCase('HELLO WORLD'),
+                'HelloWorld',
             );
         });
 
@@ -419,6 +454,13 @@ describe('String', function() {
             assert.strictEqual(
                 snakeCase('This is a sample string'),
                 'this_is_a_sample_string',
+            );
+        });
+
+        it('works from upper case', function() {
+            assert.strictEqual(
+                snakeCase('HELLO WORLD'),
+                'hello_world',
             );
         });
 

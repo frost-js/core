@@ -761,7 +761,7 @@ var unescapeChars = {
 * @param {string} string The input string.
 * @returns {string[]} The split parts of the string.
 */
-var _splitString = (string) => `${string}`.split(/[^a-zA-Z0-9']|(?=[A-Z])/).reduce((acc, word) => {
+var _splitString = (string) => `${string}`.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2").split(/[^a-zA-Z0-9']/).reduce((acc, word) => {
 	word = word.replace(/[^\w]/g, "").toLowerCase();
 	if (word) acc.push(word);
 	return acc;
