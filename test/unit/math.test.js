@@ -1,366 +1,155 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'vitest';
+import { afterEach, describe, it, vi } from 'vitest';
 import { clamp, clampPercent, dist, inverseLerp, lerp, map, random, randomInt, toStep } from '../../src/index.js';
 
 describe('Math', function() {
+    afterEach(function() {
+        vi.restoreAllMocks();
+    });
+
     describe('#clamp', function() {
-        it('returns a value in range', function() {
+        it.each([
+            ['returns a value in range', [0, -50, 50], 0],
+            ['works with default arguments', [0.5], 0.5],
+            ['clamps to lower bounds', [-100, -50, 50], -50],
+            ['clamps to lower bounds with default arguments', [-1], 0],
+            ['clamps to upper bounds', [100, -50, 50], 50],
+            ['clamps to upper bounds with default arguments', [2], 1],
+        ])('%s', function(_, args, expected) {
             assert.strictEqual(
-                clamp(0, -50, 50),
-                0,
-            );
-        });
-
-        it('works with default arguments', function() {
-            assert.strictEqual(
-                clamp(0.5),
-                0.5,
-            );
-        });
-
-        it('clamps to lower bounds', function() {
-            assert.strictEqual(
-                clamp(-100, -50, 50),
-                -50,
-            );
-        });
-
-        it('clamps to lower bounds with default arguments', function() {
-            assert.strictEqual(
-                clamp(-1),
-                0,
-            );
-        });
-
-        it('clamps to upper bounds', function() {
-            assert.strictEqual(
-                clamp(100, -50, 50),
-                50,
-            );
-        });
-
-        it('clamps to upper bounds with default arguments', function() {
-            assert.strictEqual(
-                clamp(2),
-                1,
+                clamp(...args),
+                expected,
             );
         });
     });
 
     describe('#clampPercent', function() {
-        it('returns a value in range', function() {
+        it.each([
+            ['returns a value in range', 50, 50],
+            ['clamps to lower bounds', -50, 0],
+            ['clamps to upper bounds', 150, 100],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                clampPercent(50),
-                50,
-            );
-        });
-
-        it('clamps to lower bounds', function() {
-            assert.strictEqual(
-                clampPercent(-50),
-                0,
-            );
-        });
-
-        it('clamps to upper bounds', function() {
-            assert.strictEqual(
-                clampPercent(150),
-                100,
+                clampPercent(input),
+                expected,
             );
         });
     });
 
     describe('#dist', function() {
-        it('returns the distance of the co-ordinates', function() {
-            const x1 = Math.random();
-            const y1 = Math.random();
-            const x2 = Math.random();
-            const y2 = Math.random();
-
-            assert.strictEqual(
-                dist(x1, y1, x2, y2),
-                Math.hypot(x2 - x1, y2 - y1),
-            );
+        it.each([
+            ['returns the distance between points', [0, 0, 3, 4], 5],
+            ['works with negative coordinates', [-1, -2, 2, 2], 5],
+            ['returns zero for identical points', [2, 3, 2, 3], 0],
+        ])('%s', function(_, args, expected) {
+            assert.strictEqual(dist(...args), expected);
         });
     });
 
     describe('#inverseLerp', function() {
-        it('returns the inverse interpolated value', function() {
+        it.each([
+            ['returns the inverse interpolated value', [50, 100, 75], .5],
+            ['works from negative numbers', [-100, 100, 50], .75],
+            ['works to negative numbers', [100, -100, -50], .75],
+        ])('%s', function(_, args, expected) {
             assert.strictEqual(
-                inverseLerp(50, 100, 75),
-                .5,
-            );
-        });
-
-        it('works from negative numbers', function() {
-            assert.strictEqual(
-                inverseLerp(-100, 100, 50),
-                .75,
-            );
-        });
-
-        it('works to negative numbers', function() {
-            assert.strictEqual(
-                inverseLerp(100, -100, -50),
-                .75,
+                inverseLerp(...args),
+                expected,
             );
         });
     });
 
     describe('#lerp', function() {
-        it('returns the interpolated value', function() {
+        it.each([
+            ['returns the interpolated value', [50, 100, .5], 75],
+            ['works from negative numbers', [-100, 100, .75], 50],
+            ['works to negative numbers', [100, -100, .75], -50],
+        ])('%s', function(_, args, expected) {
             assert.strictEqual(
-                lerp(50, 100, .5),
-                75,
-            );
-        });
-
-        it('works from negative numbers', function() {
-            assert.strictEqual(
-                lerp(-100, 100, .75),
-                50,
-            );
-        });
-
-        it('works to negative numbers', function() {
-            assert.strictEqual(
-                lerp(100, -100, .75),
-                -50,
+                lerp(...args),
+                expected,
             );
         });
     });
 
     describe('#map', function() {
-        it('returns the mapped value', function() {
+        it.each([
+            ['returns the mapped value', [25, 10, 50, 25, 150], 71.875],
+            ['works from negative start', [5, -10, 50, 25, 150], 56.25],
+            ['works from negative end', [-5, 10, -50, 25, 150], 56.25],
+            ['works to negative start', [25, 10, 50, -25, 50], 3.125],
+            ['works to negative end', [25, 10, 50, 25, -50], -3.125],
+        ])('%s', function(_, args, expected) {
             assert.strictEqual(
-                map(25, 10, 50, 25, 150),
-                71.875,
-            );
-        });
-
-        it('works from negative start', function() {
-            assert.strictEqual(
-                map(5, -10, 50, 25, 150),
-                56.25,
-            );
-        });
-
-        it('works from negative end', function() {
-            assert.strictEqual(
-                map(-5, 10, -50, 25, 150),
-                56.25,
-            );
-        });
-
-        it('works to negative start', function() {
-            assert.strictEqual(
-                map(25, 10, 50, -25, 50),
-                3.125,
-            );
-        });
-
-        it('works to negative end', function() {
-            assert.strictEqual(
-                map(25, 10, 50, 25, -50),
-                -3.125,
+                map(...args),
+                expected,
             );
         });
     });
 
     describe('#random', function() {
-        it('works with default arguments', function() {
-            const found = new Set;
+        it.each([
+            ['works with default arguments', [], 0.25, 0.25],
+            ['works with a lower bound', [10, 50], 0.25, 20],
+            ['works with an upper bound', [10], 0.75, 7.5],
+            ['works with a negative range', [-50, -10], 0.25, -40],
+            ['includes the lower bound', [10, 50], 0, 10],
+            ['approaches the upper bound', [0, 1], 1 - Number.EPSILON, 1 - Number.EPSILON],
+        ])('%s', function(_, args, sample, expected) {
+            vi.spyOn(Math, 'random').mockReturnValue(sample);
 
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = random();
-                assert.ok(value >= 0 && value < 1);
-                found.add(value);
-            }
-
-            assert.ok(found.size > 100);
-        });
-
-        it('works with a lower bound', function() {
-            const found = new Set;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = random(10, 50);
-                assert.ok(value >= 10 && value < 50);
-                found.add(value);
-            }
-
-            assert.ok(found.size > 100);
-        });
-
-        it('works with an upper bound', function() {
-            const found = new Set;
-            const foundHigh = new Set;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = random(10);
-                assert.ok(value >= 0 && value < 10);
-                found.add(value);
-                if (value > 1) {
-                    foundHigh.add(value);
-                }
-            }
-
-            assert.ok(found.size > 100);
-            assert.ok(foundHigh.size > 50);
-        });
-
-        it('works with a negative range', function() {
-            const found = new Set;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = random(-50, -10);
-                assert.ok(value >= -50 && value < -10);
-                found.add(value);
-            }
-
-            assert.ok(found.size > 100);
+            assert.strictEqual(random(...args), expected);
         });
     });
 
     describe('#randomInt', function() {
-        it('works with a lower bound', function() {
-            const found2 = new Set;
+        it.each([
+            ['works with default arguments', [], 0.75, 0],
+            ['works with a lower bound', [10, 50], 0.26, 20],
+            ['works with an upper bound', [10], 0.75, 7],
+            ['works with a negative range', [-50, -10], 0.26, -40],
+            ['works with numbers larger than 32-bit', [0, 2 ** 32], 0.75, 3221225472],
+            ['accepts reversed bounds', [50, 10], 0.26, 20],
+            ['includes the lower bound', [10, 50], 0, 10],
+            ['excludes the upper bound', [10, 50], 1 - Number.EPSILON, 49],
+            ['rounds fractional lower bounds up', [1.2, 5.8], 0, 2],
+            ['honors fractional upper bounds', [1.2, 5.8], 1 - Number.EPSILON, 5],
+        ])('%s', function(_, args, sample, expected) {
+            vi.spyOn(Math, 'random').mockReturnValue(sample);
 
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = randomInt(10, 50);
-                assert.ok(value >= 10 && value < 50);
-                assert.strictEqual(value, Math.round(value));
-                found2.add(value);
-            }
-
-            assert.ok(found2.size > 1);
-        });
-
-        it('works with an upper bound', function() {
-            const found = new Set;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = randomInt(10);
-                assert.ok(value >= 0 && value < 10);
-                assert.strictEqual(value, Math.round(value));
-                found.add(value);
-            }
-
-            assert.ok(found.size > 1);
-        });
-
-        it('works with a negative range', function() {
-            const found = new Set;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = randomInt(-50, -10);
-                assert.ok(value >= -50 && value < -10);
-                assert.strictEqual(value, Math.round(value));
-                found.add(value);
-            }
-
-            assert.ok(found.size > 1);
-        });
-
-        it('works with numbers larger than 32-bit', function() {
-            const max = 2 ** 32;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                const value = randomInt(0, max);
-                assert.ok(value >= 0 && value < max);
-                assert.strictEqual(value, Math.round(value));
-            }
+            assert.strictEqual(randomInt(...args), expected);
         });
 
         it('excludes the upper bound with a large lower bound', function() {
-            const originalRandom = Math.random;
             const min = 2 ** 52;
+            vi.spyOn(Math, 'random').mockReturnValue(0.75);
 
-            try {
-                Math.random = (_) => 0.75;
-                assert.strictEqual(
-                    randomInt(min, min + 1),
-                    min,
-                );
-            } finally {
-                Math.random = originalRandom;
-            }
+            assert.strictEqual(randomInt(min, min + 1), min);
         });
 
-        it('honors fractional bounds', function() {
-            const originalRandom = Math.random;
-
-            try {
-                Math.random = (_) => 0;
-                assert.strictEqual(randomInt(1.2, 5.8), 2);
-
-                Math.random = (_) => 1 - Number.EPSILON;
-                assert.strictEqual(randomInt(1.2, 5.8), 5);
-            } finally {
-                Math.random = originalRandom;
-            }
-        });
-
-        it('rejects bounds without an integer', function() {
+        it.each([
+            [0.1, 0.9],
+            [0, 0],
+        ])('rejects bounds without an integer: %s to %s', function(min, max) {
             assert.throws(
-                (_) => randomInt(0.1, 0.9),
-                RangeError,
-            );
-            assert.throws(
-                (_) => randomInt(0, 0),
+                (_) => randomInt(min, max),
                 RangeError,
             );
         });
     });
 
     describe('#toStep', function() {
-        it('works with a decimal', function() {
+        it.each([
+            ['works with a decimal', [0.123456, .1], 0.1],
+            ['works with scientific notation', [0.00000014, 1e-7], 1e-7],
+            ['works with a fraction', [1.23456, 1 / 4], 1.25],
+            ['works with a whole number', [123.456, 33], 132],
+            ['works with a negative step size', [0.123456, -0.1], 0.1],
+            ['returns the input value for a step of zero', [123.456, 0], 123.456],
+        ])('%s', function(_, args, expected) {
             assert.strictEqual(
-                toStep(0.123456, .1),
-                0.1,
-            );
-        });
-
-        it('works with scientific notation', function() {
-            assert.strictEqual(
-                toStep(0.00000014, 1e-7),
-                1e-7,
-            );
-        });
-
-        it('works with a fraction', function() {
-            assert.strictEqual(
-                toStep(1.23456, 1 / 4),
-                1.25,
-            );
-        });
-
-        it('works with a whole number', function() {
-            assert.strictEqual(
-                toStep(123.456, 33),
-                132,
-            );
-        });
-
-        it('works with a negative step size', function() {
-            assert.strictEqual(
-                toStep(0.123456, -0.1),
-                0.1,
-            );
-        });
-
-        it('returns the input value for a step of zero', function() {
-            assert.strictEqual(
-                toStep(123.456, 0),
-                123.456,
+                toStep(...args),
+                expected,
             );
         });
     });

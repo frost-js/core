@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'vitest';
+import { afterEach, describe, it, vi } from 'vitest';
 import { diff, intersect, merge, randomValue, range, unique, wrap } from '../../src/index.js';
 import { mockArray, mockNumber, mockPlainObject, mockString } from '../support/fixtures.js';
 import MockArrayLike from '../support/mocks/mock-array-like.js';
 
 describe('Array', function() {
+    afterEach(function() {
+        vi.restoreAllMocks();
+    });
+
     describe('#diff', function() {
         it('returns the elements that exist only in the first array', function() {
             assert.deepStrictEqual(
@@ -76,46 +80,39 @@ describe('Array', function() {
     });
 
     describe('#randomValue', function() {
-        it('always returns a valid element', function() {
-            const array = [1, 2, 3, 4, 5];
+        it.each([
+            [0, 'a'],
+            [0.25, 'b'],
+            [0.5, 'c'],
+            [0.75, 'd'],
+            [1 - Number.EPSILON, 'e'],
+        ])('selects %s -> %s', function(sample, expected) {
+            vi.spyOn(Math, 'random').mockReturnValue(sample);
 
-            let i;
-            for (i = 0; i < 1000; i++) {
-                assert.ok(
-                    array.includes(
-                        randomValue(array),
-                    ),
-                );
-            }
+            assert.strictEqual(randomValue(['a', 'b', 'c', 'd', 'e']), expected);
         });
 
-        it('does not always return the same element', function() {
-            const array = [1, 2, 3, 4, 5];
-            const found = new Set;
-
-            let i;
-            for (i = 0; i < 1000; i++) {
-                found.add(
-                    randomValue(array),
-                );
-            }
-
-            assert.strictEqual(found.size, array.length);
+        it('returns null for an empty array', function() {
+            assert.strictEqual(randomValue([]), null);
         });
     });
 
     describe('#range', function() {
-        it('works with incrementing integers', function() {
+        it.each([
+            ['works with incrementing integers', [0, 10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
+            ['works with incrementing decimals', [0, 1, .1], [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1]],
+            ['includes a decimal endpoint with a nonzero start', [1, 1.4, 0.1], [1, 1.1, 1.2, 1.3, 1.4]],
+            ['excludes decimal endpoints between steps', [1, 1.35, 0.1], [1, 1.1, 1.2, 1.3]],
+            ['works with decrementing integers', [0, -10], [0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10]],
+            ['works with decrementing decimals', [0, -1, .1], [0, -.1, -.2, -.3, -.4, -.5, -.6, -.7, -.8, -.9, -1]],
+            ['works with an offset', [10, 20], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]],
+            ['works with a negative offset', [-10, -20], [-10, -11, -12, -13, -14, -15, -16, -17, -18, -19, -20]],
+            ['returns an empty array for a step of zero', [0, 10, 0], []],
+            ['works with a negative step size', [0, 5, -1], [0, 1, 2, 3, 4, 5]],
+        ])('%s', function(_, args, expected) {
             assert.deepStrictEqual(
-                range(0, 10),
-                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            );
-        });
-
-        it('works with incrementing decimals', function() {
-            assert.deepStrictEqual(
-                range(0, 1, .1),
-                [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1],
+                range(...args),
+                expected,
             );
         });
 
@@ -130,102 +127,41 @@ describe('Array', function() {
             );
         });
 
-        it('includes a decimal endpoint with a nonzero start', function() {
-            assert.deepStrictEqual(
-                range(1, 1.4, 0.1),
-                [1, 1.1, 1.2, 1.3, 1.4],
-            );
-        });
-
         it('includes a descending decimal endpoint', function() {
             const values = range(1.4, 1, 0.1);
 
             assert.strictEqual(values.length, 5);
             assert.strictEqual(values.at(-1), 1);
         });
-
-        it('excludes decimal endpoints between steps', function() {
-            assert.deepStrictEqual(
-                range(1, 1.35, 0.1),
-                [1, 1.1, 1.2, 1.3],
-            );
-        });
-
-        it('works with decrementing integers', function() {
-            assert.deepStrictEqual(
-                range(0, -10),
-                [0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10],
-            );
-        });
-
-        it('works with decrementing decimals', function() {
-            assert.deepStrictEqual(
-                range(0, -1, .1),
-                [0, -.1, -.2, -.3, -.4, -.5, -.6, -.7, -.8, -.9, -1],
-            );
-        });
-
-        it('works with an offset', function() {
-            assert.deepStrictEqual(
-                range(10, 20),
-                [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-            );
-        });
-
-        it('works with a negative offset', function() {
-            assert.deepStrictEqual(
-                range(-10, -20),
-                [-10, -11, -12, -13, -14, -15, -16, -17, -18, -19, -20],
-            );
-        });
-
-        it('returns an empty array for a step of zero', function() {
-            assert.deepStrictEqual(
-                range(0, 10, 0),
-                [],
-            );
-        });
-
-        it('works with a negative step size', function() {
-            assert.deepStrictEqual(
-                range(0, 5, -1),
-                [0, 1, 2, 3, 4, 5],
-            );
-        });
     });
 
     describe('#unique', function() {
-        it('returns the unique elements', function() {
+        it.each([
+            ['returns the unique elements', [1, 2, 2, 3, 4, 5], [1, 2, 3, 4, 5]],
+            ['only removes "strict" duplicates', [1, 2, '2', 3, 4, 5], [1, 2, '2', 3, 4, 5]],
+        ])('%s', function(_, input, expected) {
             assert.deepStrictEqual(
-                unique(
-                    [1, 2, 2, 3, 4, 5],
-                ),
-                [1, 2, 3, 4, 5],
-            );
-        });
-
-        it('only removes "strict" duplicates', function() {
-            assert.deepStrictEqual(
-                unique(
-                    [1, 2, '2', 3, 4, 5],
-                ),
-                [1, 2, '2', 3, 4, 5],
+                unique(input),
+                expected,
             );
         });
     });
 
     describe('#wrap', function() {
-        it('returns an array from an array', function() {
+        it.each([
+            ['returns an array from an array', mockArray, mockArray],
+            ['returns an array from an array-like', new MockArrayLike(), [1, 2, 3]],
+            ['returns an array from false', false, [false]],
+            ['returns an array from null', null, [null]],
+            ['returns an array from a number', mockNumber, [mockNumber]],
+            ['returns an array from an object', mockPlainObject, [mockPlainObject]],
+            ['returns an array from a string', mockString, [mockString]],
+            ['returns an array from true', true, [true]],
+            ['returns an empty array from undefined', undefined, []],
+        ])('%s', function(_, input, expected) {
             assert.deepStrictEqual(
-                wrap(mockArray),
-                mockArray,
-            );
-        });
-
-        it('returns an array from an array-like', function() {
-            assert.deepStrictEqual(
-                wrap(new MockArrayLike()),
-                [1, 2, 3],
+                wrap(input),
+                expected,
             );
         });
 
@@ -237,55 +173,6 @@ describe('Array', function() {
             assert.deepStrictEqual(
                 wrap(new Uint8Array([1, 2, 3])),
                 [1, 2, 3],
-            );
-        });
-
-        it('returns an array from false', function() {
-            assert.deepStrictEqual(
-                wrap(false),
-                [false],
-            );
-        });
-
-        it('returns an array from null', function() {
-            assert.deepStrictEqual(
-                wrap(null),
-                [null],
-            );
-        });
-
-        it('returns an array from a number', function() {
-            assert.deepStrictEqual(
-                wrap(mockNumber),
-                [mockNumber],
-            );
-        });
-
-        it('returns an array from an object', function() {
-            assert.deepStrictEqual(
-                wrap(mockPlainObject),
-                [mockPlainObject],
-            );
-        });
-
-        it('returns an array from a string', function() {
-            assert.deepStrictEqual(
-                wrap(mockString),
-                [mockString],
-            );
-        });
-
-        it('returns an array from true', function() {
-            assert.deepStrictEqual(
-                wrap(true),
-                [true],
-            );
-        });
-
-        it('returns an empty array from undefined', function() {
-            assert.deepStrictEqual(
-                wrap(undefined),
-                [],
             );
         });
     });

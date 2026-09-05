@@ -8,273 +8,71 @@ import MockObject from '../../support/mocks/mock-object.js';
 
 describe('Testing (Custom)', function() {
     describe('#isArrayLike', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, true],
+            ['works with array-like', new MockArrayLike, true],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with string', mockString, false],
+            ['works with undefined', undefined, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isArrayLike(mockArray),
-                true,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isArrayLike(new MockArrayLike),
-                true,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isArrayLike(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isArrayLike(false),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isArrayLike(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isArrayLike(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isArrayLike(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isArrayLike(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isArrayLike(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isArrayLike(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isArrayLike(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isArrayLike(mockString),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isArrayLike(undefined),
-                false,
+                isArrayLike(input),
+                expected,
             );
         });
     });
 
     describe('#isNumeric', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, true],
+            ['works with numeric string', mockNumericString, true],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with string', mockString, false],
+            ['works with symbol', Symbol('test'), false],
+            ['works with undefined', undefined, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isNumeric(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isNumeric(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isNumeric(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isNumeric(false),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isNumeric(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isNumeric(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isNumeric(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isNumeric(mockNumber),
-                true,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isNumeric(mockNumericString),
-                true,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isNumeric(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isNumeric(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isNumeric(mockString),
-                false,
-            );
-        });
-
-        it('works with symbol', function() {
-            assert.strictEqual(
-                isNumeric(Symbol('test')),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isNumeric(undefined),
-                false,
+                isNumeric(input),
+                expected,
             );
         });
     });
 
     describe('#isPlainObject', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, true],
+            ['works with string', mockString, false],
+            ['works with undefined', undefined, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isPlainObject(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isPlainObject(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isPlainObject(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isPlainObject(false),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isPlainObject(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isPlainObject(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isPlainObject(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isPlainObject(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isPlainObject(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isPlainObject(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isPlainObject(mockPlainObject),
-                true,
+                isPlainObject(input),
+                expected,
             );
         });
 
@@ -286,20 +84,6 @@ describe('Testing (Custom)', function() {
         it('recognizes plain objects from another context', function() {
             assert.strictEqual(isPlainObject(runInNewContext('({})')), true);
             assert.strictEqual(isPlainObject(runInNewContext('(new class Example {})')), false);
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isPlainObject(mockString),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isPlainObject(undefined),
-                false,
-            );
         });
     });
 });

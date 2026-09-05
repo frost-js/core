@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, vi } from 'vitest';
-import { animation, compose, curry, debounce, evaluate, once, partial, pipe, random, throttle, times } from '../../src/index.js';
+import { animation, compose, curry, debounce, evaluate, once, partial, pipe, throttle, times } from '../../src/index.js';
 
 describe('Function', function() {
     beforeEach(function() {
@@ -13,109 +13,98 @@ describe('Function', function() {
 
     describe('#animation', function() {
         it('returns an animation function', function() {
-            let callCount = 0;
-            const callback = animation((_) => callCount++);
+            const callback = vi.fn();
+            const animated = animation(callback);
 
-            callback();
-
+            animated();
             vi.advanceTimersByTime(32);
-            assert.strictEqual(callCount, 1);
+
+            assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
         it('only executes once per animation frame', function() {
-            let callCount = 0;
-            const callback = animation((_) => callCount++);
+            const callback = vi.fn();
+            const animated = animation(callback);
 
-            callback();
-            callback();
-
+            animated();
+            animated();
             vi.advanceTimersByTime(32);
-            assert.strictEqual(callCount, 1);
+
+            assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
         it('executes for each animation frame', function() {
-            let callCount = 0;
-            const callback = animation((_) => callCount++);
+            const callback = vi.fn();
+            const animated = animation(callback);
 
-            callback();
-            setTimeout(callback, 32);
+            animated('first');
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 2);
+            animated('second');
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['second']]);
         });
 
         it('works without leading argument', function() {
-            let finished = false;
-            let callCount = 0;
-            const callback = animation((_) => {
-                if (finished) {
-                    callCount++;
-                }
-            });
+            const callback = vi.fn();
+            const animated = animation(callback);
 
-            callback();
-            finished = true;
+            animated();
+            assert.deepStrictEqual(callback.mock.calls, []);
 
             vi.advanceTimersByTime(32);
-            assert.strictEqual(callCount, 1);
+            assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
         it('works with leading argument', function() {
-            let finished = false;
-            let callCount = 0;
-            const callback = animation((_) => {
-                if (!finished) {
-                    callCount++;
-                }
-            }, { leading: true });
+            const callback = vi.fn();
+            const animated = animation(callback, { leading: true });
 
-            callback();
-            finished = true;
+            animated('first');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
+            animated('ignored');
             vi.advanceTimersByTime(32);
-            assert.strictEqual(callCount, 1);
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
+
+            animated('next');
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['next']]);
         });
 
         it('uses the most recent arguments', function() {
-            let callCount = 0;
-            const callback = animation((finished) => {
-                if (!finished) {
-                    return;
-                }
+            const callback = vi.fn();
+            const animated = animation(callback);
 
-                callCount++;
-            });
-
-            callback();
-            callback(true);
-
+            animated('first', 1);
+            animated('last', 2);
             vi.advanceTimersByTime(32);
-            assert.strictEqual(callCount, 1);
+
+            assert.deepStrictEqual(callback.mock.calls, [['last', 2]]);
         });
 
         it('uses the most recent context', function() {
+            const callback = vi.fn();
+            const animated = animation(callback);
             const expected = {};
-            let actual;
-            const callback = animation(function() {
-                actual = this;
-            });
 
-            callback.call({});
-            callback.call(expected);
-
+            animated.call({});
+            animated.call(expected);
             vi.advanceTimersByTime(32);
-            assert.strictEqual(actual, expected);
+
+            assert.strictEqual(callback.mock.calls.length, 1);
+            assert.strictEqual(callback.mock.contexts[0], expected);
         });
 
         it('allows callback to be cancelled', function() {
-            let callCount = 0;
-            const callback = animation((_) => callCount++);
+            const callback = vi.fn();
+            const animated = animation(callback);
 
-            callback();
-            callback.cancel();
-
+            animated();
+            animated.cancel();
             vi.advanceTimersByTime(32);
-            assert.strictEqual(callCount, 0);
+
+            assert.deepStrictEqual(callback.mock.calls, []);
         });
     });
 
@@ -162,173 +151,168 @@ describe('Function', function() {
 
     describe('#debounce', function() {
         it('returns a debounced function', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 32);
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32);
 
             debounced();
+            vi.advanceTimersByTime(32);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
         it('only executes once per wait period', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 32);
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32);
 
             debounced();
             debounced();
-
             vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+
+            assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
         it('executes for each wait period', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 16);
+            const callback = vi.fn();
+            const debounced = debounce(callback, 16);
 
-            debounced();
-            setTimeout(debounced, 16);
+            debounced('first');
+            vi.advanceTimersByTime(16);
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 2);
+            debounced('second');
+            vi.advanceTimersByTime(16);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['second']]);
         });
 
         it('only executes after wait period', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 16);
+            const callback = vi.fn();
+            const debounced = debounce(callback, 16);
 
-            debounced();
-            setTimeout(debounced, 8);
-            setTimeout(debounced, 16);
+            debounced('first');
+            vi.advanceTimersByTime(8);
+            debounced('second');
+            vi.advanceTimersByTime(8);
+            debounced('last');
 
-            vi.advanceTimersByTime(31);
-            assert.strictEqual(callCount, 0);
+            vi.advanceTimersByTime(15);
+            assert.deepStrictEqual(callback.mock.calls, []);
 
-            vi.advanceTimersByTime(33);
-            assert.strictEqual(callCount, 1);
+            vi.advanceTimersByTime(1);
+            assert.deepStrictEqual(callback.mock.calls, [['last']]);
         });
 
         it('works with leading only', function() {
-            let finished = false;
-            let callCount = 0;
-            const debounced = debounce((_) => {
-                if (!finished) {
-                    callCount++;
-                }
-            }, 32, { leading: true, trailing: false });
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32, { leading: true, trailing: false });
 
-            debounced();
-            setTimeout(debounced, 32);
-            finished = true;
+            debounced('first');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            debounced('ignored');
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
+
+            debounced('next');
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['next']]);
         });
 
         it('works with trailing only', function() {
-            let finished = false;
-            let callCount = 0;
-            const debounced = debounce((_) => {
-                if (!finished) {
-                    callCount++;
-                }
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32, { leading: false, trailing: true });
 
-                finished = true;
-            }, 32);
+            debounced('first');
+            assert.deepStrictEqual(callback.mock.calls, []);
 
-            debounced();
-            setTimeout(debounced, 32);
+            vi.advanceTimersByTime(16);
+            debounced('last');
+            vi.advanceTimersByTime(31);
+            assert.deepStrictEqual(callback.mock.calls, []);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            vi.advanceTimersByTime(1);
+            assert.deepStrictEqual(callback.mock.calls, [['last']]);
         });
 
         it('works with leading and trailing', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 32, { leading: true, trailing: true });
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32, { leading: true, trailing: true });
 
-            debounced();
-            debounced();
+            debounced('first');
+            debounced('last');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 2);
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['last']]);
         });
 
-        it('does not execute a stale trailing call after a new leading execution', function() {
-            const calls = [];
-            const debounced = debounce((value) => calls.push(value), 200, { leading: true, trailing: true });
+        it('does not run stale trailing arguments after the original wait period', function() {
+            const callback = vi.fn();
+            const debounced = debounce(callback, 200, { leading: true, trailing: true });
 
             debounced(1);
-            setTimeout((_) => debounced(2), 150);
+            vi.advanceTimersByTime(150);
+            debounced(2);
+            vi.advanceTimersByTime(60);
+            debounced(3);
+            assert.deepStrictEqual(callback.mock.calls, [[1]]);
 
-            setTimeout((_) => debounced(3), 210);
+            vi.advanceTimersByTime(200);
+            assert.deepStrictEqual(callback.mock.calls, [[1], [3]]);
 
-            vi.advanceTimersByTime(450);
-
-            const index3 = calls.indexOf(3);
-            assert.notStrictEqual(index3, -1);
-
-            assert.strictEqual(
-                calls.slice(index3 + 1).includes(2),
-                false,
-            );
+            vi.advanceTimersByTime(200);
+            assert.deepStrictEqual(callback.mock.calls, [[1], [3]]);
         });
 
         it('works without leading or trailing', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 32, { trailing: false });
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32, { trailing: false });
 
             debounced();
             debounced();
-
             vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 0);
+
+            assert.deepStrictEqual(callback.mock.calls, []);
         });
 
         it('uses the most recent arguments', function() {
-            let callCount = 0;
-            const debounced = debounce((finished) => {
-                if (finished) {
-                    callCount++;
-                }
-            }, 32);
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32);
 
-            debounced();
-            debounced(true);
+            debounced('first', 1);
+            debounced('last', 2);
+            vi.advanceTimersByTime(32);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            assert.deepStrictEqual(callback.mock.calls, [['last', 2]]);
         });
 
         it('uses the most recent context', function() {
+            const callback = vi.fn();
+            const debounced = debounce(callback, 1);
             const expected = {};
-            let actual;
-            const callback = debounce(function() {
-                actual = this;
-            }, 1);
 
-            callback.call({});
-            callback.call(expected);
-
+            debounced.call({});
+            debounced.call(expected);
             vi.advanceTimersByTime(1);
-            assert.strictEqual(actual, expected);
+
+            assert.strictEqual(callback.mock.calls.length, 1);
+            assert.strictEqual(callback.mock.contexts[0], expected);
         });
 
         it('allows callback to be cancelled', function() {
-            let callCount = 0;
-            const debounced = debounce((_) => callCount++, 32);
+            const callback = vi.fn();
+            const debounced = debounce(callback, 32);
 
             debounced();
             debounced.cancel();
-
             vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 0);
+
+            assert.deepStrictEqual(callback.mock.calls, []);
         });
     });
 
     describe('#evaluate', function() {
         it('returns the result of a function', function() {
-            const value = random();
+            const value = 42;
             const result = evaluate(
                 (_) => value,
             );
@@ -337,7 +321,7 @@ describe('Function', function() {
         });
 
         it('returns the value of a non-function', function() {
-            const value = random();
+            const value = 42;
             const result = evaluate(value);
 
             assert.strictEqual(result, value);
@@ -346,61 +330,43 @@ describe('Function', function() {
 
     describe('#once', function() {
         it('returns a function that only executes once', function() {
-            let result = 0;
-            const addOneOnce = once(
-                (_) => result++,
-            );
+            const callback = vi.fn();
+            const runOnce = once(callback);
 
-            for (let i = 0; i < 10; i++) {
-                addOneOnce();
-            }
+            runOnce();
+            runOnce();
 
-            assert.strictEqual(result, 1);
+            assert.strictEqual(callback.mock.calls.length, 1);
         });
 
         it('returns the result of the first execution on subsequent calls', function() {
-            const rand = once(Math.random);
-            const results = new Set;
+            const callback = vi.fn((value) => value);
+            const runOnce = once(callback);
+            const first = { value: 1 };
 
-            for (let i = 0; i < 100; i++) {
-                const value = rand();
-                results.add(value);
-            }
-
-            assert.strictEqual(
-                results.size,
-                1,
-            );
+            assert.strictEqual(runOnce(first), first);
+            assert.strictEqual(runOnce({ value: 2 }), first);
+            assert.strictEqual(callback.mock.calls.length, 1);
         });
 
         it('retries after an error until the first successful execution', function() {
-            let callCount = 0;
-            const callback = once((value) => {
-                callCount++;
-
-                if (callCount === 1) {
+            const callback = vi.fn((value) => {
+                if (value === 1) {
                     throw new Error('fail');
                 }
 
                 return value;
             });
+            const runOnce = once(callback);
 
             assert.throws(
-                () => callback(1),
+                () => runOnce(1),
                 /fail/u,
             );
 
-            assert.strictEqual(
-                callback(2),
-                2,
-            );
-
-            assert.strictEqual(
-                callback(3),
-                2,
-            );
-
-            assert.strictEqual(callCount, 2);
+            assert.strictEqual(runOnce(2), 2);
+            assert.strictEqual(runOnce(3), 2);
+            assert.deepStrictEqual(callback.mock.calls, [[1], [2]]);
         });
 
         it('prevents re-entrant execution and preserves context', function() {
@@ -470,164 +436,152 @@ describe('Function', function() {
 
     describe('#throttle', function() {
         it('returns a throttled function', function() {
-            let callCount = 0;
-            const throttled = throttle((_) => callCount++, 32);
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32);
 
             throttled();
+            vi.advanceTimersByTime(32);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
         it('only executes once per wait period', function() {
-            let callCount = 0;
-            const throttled = throttle((_) => callCount++, 32);
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32);
 
-            throttled();
-            throttled();
-            throttled();
+            throttled('first');
+            throttled('second');
+            throttled('last');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 2);
+            vi.advanceTimersByTime(31);
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
+
+            vi.advanceTimersByTime(1);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['last']]);
         });
 
         it('executes for each wait period', function() {
-            let callCount = 0;
-            const throttled = throttle((_) => callCount++, 32);
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32);
 
-            throttled();
-            setTimeout(throttled, 32);
+            throttled('first');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 2);
+            vi.advanceTimersByTime(32);
+            throttled('second');
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['second']]);
         });
 
         it('works with leading only', function() {
-            let finished = false;
-            let callCount = 0;
-            const throttled = throttle((_) => {
-                if (!finished) {
-                    callCount++;
-                }
-            }, 32, { trailing: false });
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32, { trailing: false });
 
-            throttled();
-            setTimeout(throttled, 32);
-            finished = true;
+            throttled('first');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            throttled('ignored');
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
+
+            throttled('next');
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['next']]);
         });
 
         it('works with trailing only', function() {
-            let finished = false;
-            let callCount = 0;
-            const throttled = throttle((_) => {
-                if (!finished) {
-                    callCount++;
-                }
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32, { leading: false });
 
-                finished = true;
-            }, 32, { leading: false });
+            throttled('first');
+            throttled('last');
+            assert.deepStrictEqual(callback.mock.calls, []);
 
-            throttled();
-            setTimeout(throttled, 32);
+            vi.advanceTimersByTime(31);
+            assert.deepStrictEqual(callback.mock.calls, []);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            vi.advanceTimersByTime(1);
+            assert.deepStrictEqual(callback.mock.calls, [['last']]);
         });
 
         it('works with leading and trailing', function() {
-            let callCount = 0;
-            const throttled = throttle((_) => callCount++, 32);
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32, { leading: true, trailing: true });
 
-            throttled();
-            throttled();
+            throttled('first');
+            throttled('last');
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 2);
+            vi.advanceTimersByTime(32);
+            assert.deepStrictEqual(callback.mock.calls, [['first'], ['last']]);
         });
 
         it('works without leading or trailing', function() {
-            let callCount = 0;
-            const throttled = throttle((_) => callCount++, 32, { leading: false, trailing: false });
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32, { leading: false, trailing: false });
 
             throttled();
             throttled();
-
             vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 0);
+
+            assert.deepStrictEqual(callback.mock.calls, []);
         });
 
         it('uses the most recent arguments', function() {
-            let callCount = 0;
-            const throttled = throttle((finished) => {
-                if (finished) {
-                    callCount++;
-                }
-            }, 32);
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32);
 
-            throttled();
-            throttled(true);
+            throttled('first', 1);
+            throttled('last', 2);
+            vi.advanceTimersByTime(32);
 
-            vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+            assert.deepStrictEqual(callback.mock.calls, [['first', 1], ['last', 2]]);
         });
 
         it('uses the most recent context', function() {
+            const callback = vi.fn();
+            const throttled = throttle(callback, 1, { leading: false });
             const expected = {};
-            let actual;
-            const callback = throttle(function() {
-                actual = this;
-            }, 1, { leading: false });
 
-            callback.call({});
-            callback.call(expected);
-
+            throttled.call({});
+            throttled.call(expected);
             vi.advanceTimersByTime(1);
-            assert.strictEqual(actual, expected);
+
+            assert.strictEqual(callback.mock.calls.length, 1);
+            assert.strictEqual(callback.mock.contexts[0], expected);
         });
 
         it('allows callback to be cancelled', function() {
-            let callCount = 0;
-            const throttled = throttle((_) => callCount++, 32);
+            const callback = vi.fn();
+            const throttled = throttle(callback, 32);
 
-            throttled();
-            throttled();
+            throttled('first');
+            throttled('cancelled');
             throttled.cancel();
-
             vi.advanceTimersByTime(64);
-            assert.strictEqual(callCount, 1);
+
+            assert.deepStrictEqual(callback.mock.calls, [['first']]);
         });
     });
 
     describe('#times', function() {
-        it('executes a function x times', function() {
-            let result = 0;
+        it.each([
+            ['executes a function x times', 3, 3],
+            ['does not run for a negative amount', -3, 0],
+        ])('%s', function(_, amount, expected) {
+            const callback = vi.fn();
 
-            times(
-                (_) => result++,
-                500,
-            );
+            times(callback, amount);
 
-            assert.strictEqual(
-                result,
-                500,
-            );
+            assert.strictEqual(callback.mock.calls.length, expected);
         });
 
-        it('does not run for a negative amount', function() {
-            let result = 0;
+        it('stops when the callback returns false', function() {
+            const callback = vi.fn().mockReturnValue(false);
 
-            times(
-                (_) => result++,
-                -500,
-            );
+            times(callback, 3);
 
-            assert.strictEqual(
-                result,
-                0,
-            );
+            assert.strictEqual(callback.mock.calls.length, 1);
         });
     });
 });

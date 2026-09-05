@@ -14,995 +14,211 @@ import MockWindow from '../../support/mocks/mock-window.js';
 
 describe('Testing (DOM)', function() {
     describe('#isDocument', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, false],
+            ['works with document', new MockDocument, true],
+            ['works with element', new MockElement, false],
+            ['works with fragment', new MockFragment, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, false],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, false],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isDocument(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isDocument(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isDocument(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isDocument(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isDocument(new MockCommentNode),
-                false,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isDocument(new MockDocument),
-                true,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isDocument(new MockElement),
-                false,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isDocument(new MockFragment),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isDocument(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isDocument(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isDocument(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isDocument(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isDocument(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isDocument(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isDocument(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isDocument(new MockShadow),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isDocument(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isDocument(new MockTextNode),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isDocument(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isDocument(new MockWindow),
-                false,
+                isDocument(input),
+                expected,
             );
         });
     });
 
     describe('#isElement', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, false],
+            ['works with document', new MockDocument, false],
+            ['works with element', new MockElement, true],
+            ['works with fragment', new MockFragment, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, false],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, false],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isElement(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isElement(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isElement(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isElement(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isElement(new MockCommentNode),
-                false,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isElement(new MockDocument),
-                false,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isElement(new MockElement),
-                true,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isElement(new MockFragment),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isElement(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isElement(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isElement(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isElement(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isElement(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isElement(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isElement(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isElement(new MockShadow),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isElement(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isElement(new MockTextNode),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isElement(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isElement(new MockWindow),
-                false,
+                isElement(input),
+                expected,
             );
         });
     });
 
     describe('#isFragment', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, false],
+            ['works with document', new MockDocument, false],
+            ['works with element', new MockElement, false],
+            ['works with fragment', new MockFragment, true],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, false],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, false],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isFragment(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isFragment(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isFragment(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isFragment(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isFragment(new MockCommentNode),
-                false,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isFragment(new MockDocument),
-                false,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isFragment(new MockElement),
-                false,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isFragment(new MockFragment),
-                true,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isFragment(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isFragment(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isFragment(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isFragment(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isFragment(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isFragment(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isFragment(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isFragment(new MockShadow),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isFragment(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isFragment(new MockTextNode),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isFragment(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isFragment(new MockWindow),
-                false,
+                isFragment(input),
+                expected,
             );
         });
     });
 
     describe('#isNode', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, true],
+            ['works with document', new MockDocument, false],
+            ['works with element', new MockElement, true],
+            ['works with fragment', new MockFragment, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, false],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, true],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isNode(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isNode(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isNode(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isNode(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isNode(new MockCommentNode),
-                true,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isNode(new MockDocument),
-                false,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isNode(new MockElement),
-                true,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isNode(new MockFragment),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isNode(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isNode(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isNode(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isNode(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isNode(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isNode(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isNode(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isNode(new MockShadow),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isNode(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isNode(new MockTextNode),
-                true,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isNode(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isNode(new MockWindow),
-                false,
+                isNode(input),
+                expected,
             );
         });
     });
 
     describe('#isShadow', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, false],
+            ['works with document', new MockDocument, false],
+            ['works with element', new MockElement, false],
+            ['works with fragment', new MockFragment, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, true],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, false],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isShadow(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isShadow(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isShadow(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isShadow(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isShadow(new MockCommentNode),
-                false,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isShadow(new MockDocument),
-                false,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isShadow(new MockElement),
-                false,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isShadow(new MockFragment),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isShadow(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isShadow(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isShadow(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isShadow(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isShadow(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isShadow(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isShadow(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isShadow(new MockShadow),
-                true,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isShadow(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isShadow(new MockTextNode),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isShadow(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isShadow(new MockWindow),
-                false,
+                isShadow(input),
+                expected,
             );
         });
     });
 
     describe('#isText', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, false],
+            ['works with document', new MockDocument, false],
+            ['works with element', new MockElement, false],
+            ['works with fragment', new MockFragment, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, false],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, true],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, false],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isText(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isText(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isText(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isText(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isText(new MockCommentNode),
-                false,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isText(new MockDocument),
-                false,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isText(new MockElement),
-                false,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isText(new MockFragment),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isText(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isText(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isText(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isText(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isText(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isText(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isText(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isText(new MockShadow),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isText(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isText(new MockTextNode),
-                true,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isText(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isText(new MockWindow),
-                false,
+                isText(input),
+                expected,
             );
         });
     });
 
     describe('#isWindow', function() {
-        it('works with array', function() {
+        it.each([
+            ['works with array', mockArray, false],
+            ['works with array-like', new MockArrayLike, false],
+            ['works with boolean true', true, false],
+            ['works with boolean false', false, false],
+            ['works with comment node', new MockCommentNode, false],
+            ['works with document', new MockDocument, false],
+            ['works with element', new MockElement, false],
+            ['works with fragment', new MockFragment, false],
+            ['works with function', mockFunction, false],
+            ['works with NaN', NaN, false],
+            ['works with null', null, false],
+            ['works with number', mockNumber, false],
+            ['works with numeric string', mockNumericString, false],
+            ['works with object', new MockObject, false],
+            ['works with plain object', mockPlainObject, false],
+            ['works with shadow', new MockShadow, false],
+            ['works with string', mockString, false],
+            ['works with text node', new MockTextNode, false],
+            ['works with undefined', undefined, false],
+            ['works with window', new MockWindow, true],
+        ])('%s', function(_, input, expected) {
             assert.strictEqual(
-                isWindow(mockArray),
-                false,
-            );
-        });
-
-        it('works with array-like', function() {
-            assert.strictEqual(
-                isWindow(new MockArrayLike),
-                false,
-            );
-        });
-
-        it('works with boolean true', function() {
-            assert.strictEqual(
-                isWindow(true),
-                false,
-            );
-        });
-
-        it('works with boolean false', function() {
-            assert.strictEqual(
-                isWindow(false),
-                false,
-            );
-        });
-
-        it('works with comment node', function() {
-            assert.strictEqual(
-                isWindow(new MockCommentNode),
-                false,
-            );
-        });
-
-        it('works with document', function() {
-            assert.strictEqual(
-                isWindow(new MockDocument),
-                false,
-            );
-        });
-
-        it('works with element', function() {
-            assert.strictEqual(
-                isWindow(new MockElement),
-                false,
-            );
-        });
-
-        it('works with fragment', function() {
-            assert.strictEqual(
-                isWindow(new MockFragment),
-                false,
-            );
-        });
-
-        it('works with function', function() {
-            assert.strictEqual(
-                isWindow(mockFunction),
-                false,
-            );
-        });
-
-        it('works with NaN', function() {
-            assert.strictEqual(
-                isWindow(NaN),
-                false,
-            );
-        });
-
-        it('works with null', function() {
-            assert.strictEqual(
-                isWindow(null),
-                false,
-            );
-        });
-
-        it('works with number', function() {
-            assert.strictEqual(
-                isWindow(mockNumber),
-                false,
-            );
-        });
-
-        it('works with numeric string', function() {
-            assert.strictEqual(
-                isWindow(mockNumericString),
-                false,
-            );
-        });
-
-        it('works with object', function() {
-            assert.strictEqual(
-                isWindow(new MockObject),
-                false,
-            );
-        });
-
-        it('works with plain object', function() {
-            assert.strictEqual(
-                isWindow(mockPlainObject),
-                false,
-            );
-        });
-
-        it('works with shadow', function() {
-            assert.strictEqual(
-                isWindow(new MockShadow),
-                false,
-            );
-        });
-
-        it('works with string', function() {
-            assert.strictEqual(
-                isWindow(mockString),
-                false,
-            );
-        });
-
-        it('works with text node', function() {
-            assert.strictEqual(
-                isWindow(new MockTextNode),
-                false,
-            );
-        });
-
-        it('works with undefined', function() {
-            assert.strictEqual(
-                isWindow(undefined),
-                false,
-            );
-        });
-
-        it('works with window', function() {
-            assert.strictEqual(
-                isWindow(new MockWindow),
-                true,
+                isWindow(input),
+                expected,
             );
         });
     });
