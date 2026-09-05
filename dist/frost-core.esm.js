@@ -696,7 +696,8 @@ var forgetDot = (object, key) => {
 */
 var getDot = (object, key, defaultValue) => {
 	const keys = key.split(".");
-	while (key = keys.shift()) {
+	while (keys.length) {
+		key = keys.shift();
 		if (!isObject(object) || !hasOwn(object, key)) return defaultValue;
 		object = object[key];
 	}
@@ -710,7 +711,8 @@ var getDot = (object, key, defaultValue) => {
 */
 var hasDot = (object, key) => {
 	const keys = key.split(".");
-	while (key = keys.shift()) {
+	while (keys.length) {
+		key = keys.shift();
 		if (!isObject(object) || !hasOwn(object, key)) return false;
 		object = object[key];
 	}

@@ -170,7 +170,9 @@ export const forgetDot = (object, key) => {
  */
 export const getDot = (object, key, defaultValue) => {
     const keys = key.split('.');
-    while ((key = keys.shift())) {
+    while (keys.length) {
+        key = keys.shift();
+
         if (
             !isObject(object) ||
             !hasOwn(object, key)
@@ -192,7 +194,9 @@ export const getDot = (object, key, defaultValue) => {
  */
 export const hasDot = (object, key) => {
     const keys = key.split('.');
-    while ((key = keys.shift())) {
+    while (keys.length) {
+        key = keys.shift();
+
         if (
             !isObject(object) ||
             !hasOwn(object, key)

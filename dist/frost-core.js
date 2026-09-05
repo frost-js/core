@@ -702,7 +702,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	*/
 	var getDot = (object, key, defaultValue) => {
 		const keys = key.split(".");
-		while (key = keys.shift()) {
+		while (keys.length) {
+			key = keys.shift();
 			if (!isObject(object) || !hasOwn(object, key)) return defaultValue;
 			object = object[key];
 		}
@@ -716,7 +717,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	*/
 	var hasDot = (object, key) => {
 		const keys = key.split(".");
-		while (key = keys.shift()) {
+		while (keys.length) {
+			key = keys.shift();
 			if (!isObject(object) || !hasOwn(object, key)) return false;
 			object = object[key];
 		}

@@ -230,6 +230,13 @@ describe('Object', function() {
             );
         });
 
+        it('handles empty path segments', function() {
+            const object = { user: { '': { name: 'Ada' } } };
+
+            assert.strictEqual(getDot(object, 'user..name'), 'Ada');
+            assert.strictEqual(getDot({ user: {} }, 'user..missing', 'fallback'), 'fallback');
+        });
+
         it('does not retrieve inherited properties', function() {
             assert.strictEqual(
                 getDot({}, 'toString', 'fallback'),
@@ -277,6 +284,13 @@ describe('Object', function() {
                 ),
                 false,
             );
+        });
+
+        it('handles empty path segments', function() {
+            const object = { user: { '': { name: 'Ada' } } };
+
+            assert.strictEqual(hasDot(object, 'user..name'), true);
+            assert.strictEqual(hasDot({ user: {} }, 'user..missing'), false);
         });
 
         it('does not find inherited properties', function() {
