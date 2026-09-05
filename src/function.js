@@ -250,17 +250,11 @@ export const once = (callback) => {
  */
 export const partial = (callback, ...defaultArgs) =>
     function(...args) {
-        return callback.call(
-            this,
-            ...(defaultArgs
-                .slice()
-                .map((v) =>
-                    isUndefined(v) ?
-                        args.shift() :
-                        v,
-                ).concat(args)
-            ),
+        const preparedArgs = defaultArgs.map((value) =>
+            isUndefined(value) ? args.shift() : value,
         );
+
+        return callback.apply(this, preparedArgs.concat(args));
     };
 
 /**

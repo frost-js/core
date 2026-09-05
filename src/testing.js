@@ -20,28 +20,22 @@ export const isArray = Array.isArray;
  * @param {*} value The value to test.
  * @returns {boolean} Whether the value is array-like.
  */
-export const isArrayLike = (value) =>
-    isArray(value) ||
-    (
-        isObject(value) &&
-        !isFunction(value) &&
-        !isWindow(value) &&
-        !isElement(value) &&
-        (
-            (
-                Symbol.iterator in value &&
-                isFunction(value[Symbol.iterator])
-            ) ||
-            (
-                'length' in value &&
-                isNumeric(value.length) &&
-                (
-                    !value.length ||
-                    value.length - 1 in value
-                )
-            )
-        )
-    );
+export const isArrayLike = (value) => {
+    if (isArray(value)) {
+        return true;
+    }
+
+    if (!isObject(value) || isFunction(value) || isWindow(value) || isElement(value)) {
+        return false;
+    }
+
+    if (isFunction(value[Symbol.iterator])) {
+        return true;
+    }
+
+    const length = value.length;
+    return isNumeric(length) && (!length || length - 1 in value);
+};
 
 /**
  * Checks whether a value is a boolean.
@@ -49,7 +43,7 @@ export const isArrayLike = (value) =>
  * @returns {boolean} Whether the value is a boolean.
  */
 export const isBoolean = (value) =>
-    value === !!value;
+    typeof value === 'boolean';
 
 /**
  * Checks whether a value is a Document.
@@ -120,17 +114,13 @@ export const isNull = (value) =>
  * @param {*} value The value to test.
  * @returns {boolean} Whether the value is numeric.
  */
-export const isNumeric = (value) =>
-    (() => {
-        try {
-            return (
-                !isNaN(parseFloat(value)) &&
-                isFinite(value)
-            );
-        } catch {
-            return false;
-        }
-    })();
+export const isNumeric = (value) => {
+    try {
+        return !isNaN(parseFloat(value)) && isFinite(value);
+    } catch {
+        return false;
+    }
+};
 
 /**
  * Checks whether a value is an object-like reference, including arrays and functions.

@@ -87,48 +87,30 @@ const setDotSegments = (object, keys, value, overwrite) => {
  * @param {...object} objects The objects to merge.
  * @returns {object} The extended object.
  */
-export const extend = (object, ...objects) =>
-    objects.reduce(
-        (acc, val) => {
-            if (val == null) {
-                return acc;
+export const extend = (object, ...objects) => {
+    for (const source of objects) {
+        if (source == null) {
+            continue;
+        }
+
+        for (const key of Object.keys(source)) {
+            let value = source[key];
+            const currentValue = hasOwn(object, key) ? object[key] : undefined;
+
+            if (isArray(value)) {
+                const target = isArray(currentValue) ? currentValue : [];
+                value = extend(target, value);
+            } else if (isPlainObject(value)) {
+                const target = isPlainObject(currentValue) ? currentValue : {};
+                value = extend(target, value);
             }
 
-            for (const k of Object.keys(val)) {
-                const value = val[k];
-                const currentValue = hasOwn(acc, k) ?
-                    acc[k] :
-                    undefined;
-                if (isArray(value)) {
-                    assignOwn(
-                        acc,
-                        k,
-                        extend(
-                            isArray(currentValue) ?
-                                currentValue :
-                                [],
-                            value,
-                        ),
-                    );
-                } else if (isPlainObject(value)) {
-                    assignOwn(
-                        acc,
-                        k,
-                        extend(
-                            isPlainObject(currentValue) ?
-                                currentValue :
-                                {},
-                            value,
-                        ),
-                    );
-                } else {
-                    assignOwn(acc, k, value);
-                }
-            }
-            return acc;
-        },
-        object,
-    );
+            assignOwn(object, key, value);
+        }
+    }
+
+    return object;
+};
 
 /**
  * Flattens an object using dot notation while preserving empty plain objects.

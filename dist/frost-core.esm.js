@@ -18,13 +18,19 @@ var isArray = Array.isArray;
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is array-like.
 */
-var isArrayLike = (value) => isArray(value) || isObject(value) && !isFunction(value) && !isWindow(value) && !isElement(value) && (Symbol.iterator in value && isFunction(value[Symbol.iterator]) || "length" in value && isNumeric(value.length) && (!value.length || value.length - 1 in value));
+var isArrayLike = (value) => {
+	if (isArray(value)) return true;
+	if (!isObject(value) || isFunction(value) || isWindow(value) || isElement(value)) return false;
+	if (isFunction(value[Symbol.iterator])) return true;
+	const length = value.length;
+	return isNumeric(length) && (!length || length - 1 in value);
+};
 /**
 * Checks whether a value is a boolean.
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a boolean.
 */
-var isBoolean = (value) => value === !!value;
+var isBoolean = (value) => typeof value === "boolean";
 /**
 * Checks whether a value is a Document.
 * @param {*} value The value to test.
@@ -72,13 +78,13 @@ var isNull = (value) => value === null;
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is numeric.
 */
-var isNumeric = (value) => (() => {
+var isNumeric = (value) => {
 	try {
 		return !isNaN(parseFloat(value)) && isFinite(value);
 	} catch {
 		return false;
 	}
-})();
+};
 /**
 * Checks whether a value is an object-like reference, including arrays and functions.
 * @param {*} value The value to test.
@@ -498,7 +504,8 @@ var once = (callback) => {
 * @returns {(...args: any[]) => ReturnType<T>} The wrapped function.
 */
 var partial = (callback, ...defaultArgs) => function(...args) {
-	return callback.call(this, ...defaultArgs.slice().map((v) => isUndefined(v) ? args.shift() : v).concat(args));
+	const preparedArgs = defaultArgs.map((value) => isUndefined(value) ? args.shift() : value);
+	return callback.apply(this, preparedArgs.concat(args));
 };
 /**
 * Creates a wrapped function that executes each callback in order,
@@ -632,17 +639,24 @@ var setDotSegments = (object, keys, value, overwrite) => {
 * @param {...object} objects The objects to merge.
 * @returns {object} The extended object.
 */
-var extend = (object, ...objects) => objects.reduce((acc, val) => {
-	if (val == null) return acc;
-	for (const k of Object.keys(val)) {
-		const value = val[k];
-		const currentValue = hasOwn(acc, k) ? acc[k] : void 0;
-		if (isArray(value)) assignOwn(acc, k, extend(isArray(currentValue) ? currentValue : [], value));
-		else if (isPlainObject(value)) assignOwn(acc, k, extend(isPlainObject(currentValue) ? currentValue : {}, value));
-		else assignOwn(acc, k, value);
+var extend = (object, ...objects) => {
+	for (const source of objects) {
+		if (source == null) continue;
+		for (const key of Object.keys(source)) {
+			let value = source[key];
+			const currentValue = hasOwn(object, key) ? object[key] : void 0;
+			if (isArray(value)) {
+				const target = isArray(currentValue) ? currentValue : [];
+				value = extend(target, value);
+			} else if (isPlainObject(value)) {
+				const target = isPlainObject(currentValue) ? currentValue : {};
+				value = extend(target, value);
+			}
+			assignOwn(object, key, value);
+		}
 	}
-	return acc;
-}, object);
+	return object;
+};
 /**
 * Flattens an object using dot notation while preserving empty plain objects.
 * @param {object} object The input object.
@@ -783,7 +797,7 @@ var humanize = (string) => capitalize(_splitString(string).join(" "));
 * @param {string} string The input string.
 * @returns {string} The kebab-cased string.
 */
-var kebabCase = (string) => _splitString(string).join("-").toLowerCase();
+var kebabCase = (string) => _splitString(string).join("-");
 /**
 * Converts a string to PascalCase.
 * @param {string} string The input string.
@@ -807,7 +821,7 @@ var randomString = (length = 16, chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL
 * @param {string} string The input string.
 * @returns {string} The snake_cased string.
 */
-var snakeCase = (string) => _splitString(string).join("_").toLowerCase();
+var snakeCase = (string) => _splitString(string).join("_");
 /**
 * Unescapes HTML entities in a string into their corresponding characters.
 * @param {string} string The input string.

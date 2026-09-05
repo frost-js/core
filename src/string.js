@@ -107,8 +107,7 @@ export const humanize = (string) =>
  */
 export const kebabCase = (string) =>
     _splitString(string)
-        .join('-')
-        .toLowerCase();
+        .join('-');
 
 /**
  * Converts a string to PascalCase.
@@ -153,8 +152,7 @@ export const randomString = (length = 16, chars = 'abcdefghijklmnopqrstuvwxyzABC
  */
 export const snakeCase = (string) =>
     _splitString(string)
-        .join('_')
-        .toLowerCase();
+        .join('_');
 
 /**
  * Unescapes HTML entities in a string into their corresponding characters.
