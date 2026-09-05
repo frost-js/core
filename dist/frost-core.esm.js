@@ -290,10 +290,9 @@ var range = (start, end, step = 1) => {
 	if (step === 0) return [];
 	const sign = Math.sign(end - start);
 	step = Math.abs(step);
-	const ratio = Math.abs(end - start) / step;
-	const nearest = Math.round(ratio);
-	const landsOnEnd = Math.abs(ratio - nearest) <= Number.EPSILON * Math.max(1, ratio);
-	const intervals = landsOnEnd ? nearest : Math.floor(ratio);
+	const ratio = toStep(Math.abs(end - start) / step, 1e-10);
+	const intervals = Math.floor(ratio);
+	const landsOnEnd = intervals > 0 && Number.isInteger(ratio);
 	return new Array(intervals + 1).fill().map((_, i) => i === intervals && landsOnEnd ? end : start + toStep(i * step * sign, step));
 };
 /**

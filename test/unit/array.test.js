@@ -130,6 +130,27 @@ describe('Array', function() {
             );
         });
 
+        it('includes a decimal endpoint with a nonzero start', function() {
+            assert.deepStrictEqual(
+                range(1, 1.4, 0.1),
+                [1, 1.1, 1.2, 1.3, 1.4],
+            );
+        });
+
+        it('includes a descending decimal endpoint', function() {
+            const values = range(1.4, 1, 0.1);
+
+            assert.strictEqual(values.length, 5);
+            assert.strictEqual(values.at(-1), 1);
+        });
+
+        it('excludes decimal endpoints between steps', function() {
+            assert.deepStrictEqual(
+                range(1, 1.35, 0.1),
+                [1, 1.1, 1.2, 1.3],
+            );
+        });
+
         it('works with decrementing integers', function() {
             assert.deepStrictEqual(
                 range(0, -10),
