@@ -135,7 +135,7 @@ export const randomInt = (a = 1, b = null) => {
         throw new RangeError('The bounds do not contain an integer');
     }
 
-    return Math.floor(random(min, max));
+    return min + Math.floor(Math.random() * (max - min));
 };
 
 /**

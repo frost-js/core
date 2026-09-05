@@ -221,7 +221,7 @@ var randomInt = (a = 1, b = null) => {
 	const min = Math.ceil(Math.min(a, isNull(b) ? 0 : b));
 	const max = Math.ceil(Math.max(a, isNull(b) ? 0 : b));
 	if (min >= max) throw new RangeError("The bounds do not contain an integer");
-	return Math.floor(random(min, max));
+	return min + Math.floor(Math.random() * (max - min));
 };
 /**
 * Constrains a number to a specified step size.

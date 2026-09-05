@@ -280,6 +280,21 @@ describe('Math', function() {
             }
         });
 
+        it('excludes the upper bound with a large lower bound', function() {
+            const originalRandom = Math.random;
+            const min = 2 ** 52;
+
+            try {
+                Math.random = (_) => 0.75;
+                assert.strictEqual(
+                    randomInt(min, min + 1),
+                    min,
+                );
+            } finally {
+                Math.random = originalRandom;
+            }
+        });
+
         it('honors fractional bounds', function() {
             const originalRandom = Math.random;
 
