@@ -298,12 +298,13 @@ var randomValue = (array) => array.length ? array[randomInt(array.length)] : nul
 */
 var range = (start, end, step = 1) => {
 	if (step === 0) return [];
-	const sign = Math.sign(end - start);
 	step = Math.abs(step);
-	const ratio = toStep(Math.abs(end - start) / step, 1e-10);
-	const intervals = Math.floor(ratio);
-	const landsOnEnd = intervals > 0 && Number.isInteger(ratio);
-	return new Array(intervals + 1).fill().map((_, i) => i === intervals && landsOnEnd ? end : start + toStep(i * step * sign, step));
+	const direction = Math.sign(end - start);
+	const steps = toStep(Math.abs(end - start) / step, 1e-10);
+	return Array.from({ length: Math.floor(steps) + 1 }, (_, index) => {
+		if (index > 0 && index === steps) return end;
+		return start + toStep(index * step * direction, step);
+	});
 };
 /**
 * Removes duplicate elements from an array.
