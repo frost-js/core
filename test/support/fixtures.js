@@ -7,6 +7,7 @@ export const mockArray = [1, 2, 3];
  * @returns {T} The provided value.
  */
 export const mockFunction = (value) => value;
+
 export const mockNumber = 123;
 export const mockNumericString = '123';
 export const mockPlainObject = { a: 1 };

@@ -98,20 +98,22 @@ All utilities are exported from `@fr0st/core` as named ESM exports.
 - `randomValue(array)`: random element from an array, or `null` for an empty array
 - `range(start, end, step = 1)`: numeric sequence from `start` toward `end`
 - `unique(array)`: remove duplicate values
-- `wrap(value)`: normalize a value into an array, copying iterable values
+- `wrap(value)`: normalize a value into an array, returning existing arrays as-is
 
 ```js
 import { diff, merge, range, unique, wrap } from '@fr0st/core';
 
 diff([1, 2, 3], [2]); // [1, 3]
 range(0, 5); // [0, 1, 2, 3, 4, 5]
+range(0, 5, 2); // [0, 2, 4]
+range(1, 1.4, 0.1); // [1, 1.1, 1.2, 1.3, 1.4]
 unique([1, 1, 2]); // [1, 2]
 wrap(undefined); // []
 wrap(new Set([1, 2])); // [1, 2]
 
 const out = [1];
 merge(out, [2, 3]);
-// out === [1, 2, 3]
+// out is now [1, 2, 3]
 ```
 
 ### Functions
@@ -121,11 +123,11 @@ merge(out, [2, 3]);
 - `curry(callback)`: curry a function until its arity is satisfied
 - `debounce(callback, wait, options)`: delay execution until calls settle
 - `evaluate(value)`: call a function or return a non-function as-is
-- `once(callback)`: run a function once and cache the result
+- `once(callback)`: cache the first returned result, retrying after synchronous errors
 - `partial(callback, ...defaultArgs)`: partially apply arguments
 - `pipe(...callbacks)`: left-to-right function composition
 - `throttle(callback, wait, options)`: run at most once per wait period
-- `times(callback, amount)`: execute a callback repeatedly
+- `times(callback, amount)`: execute a callback repeatedly, stopping if it returns `false`
 
 ```js
 import { compose, debounce, once, partial, pipe, throttle } from '@fr0st/core';
@@ -170,13 +172,14 @@ lerp(0, 10, 0.25); // 2.5
 map(0.5, 0, 1, 0, 10); // 5
 random(10); // 0 <= n < 10
 randomInt(10, 50); // 10 <= n < 50
+randomInt(1.2, 5.8); // 2, 3, 4, or 5
 toStep(0.123, 0.05); // 0.1
 ```
 
 ### Objects
 
 - `extend(object, ...objects)`: deep-merge values into the first object
-- `flatten(object)`: flatten plain-object paths into dot notation while preserving empty objects
+- `flatten(object, prefix = '')`: flatten plain-object paths into dot notation while preserving empty objects
 - `forgetDot(object, key)`: delete a path from an object
 - `getDot(object, key, defaultValue)`: read a path from an object
 - `hasDot(object, key)`: test whether a path exists
@@ -193,7 +196,13 @@ flatten({ a: { b: 1 } }); // { 'a.b': 1 }
 pluckDot([{ a: { b: 1 } }, { a: { b: 2 } }], 'a.b'); // [1, 2]
 
 setDot(obj, 'b.c', 3);
+
+obj.users = [{ active: false }, { active: false }];
 setDot(obj, 'users.*.active', true);
+obj.users; // [{ active: true }, { active: true }]
+
+setDot(obj, 'user..name', 'Ada');
+getDot(obj, 'user..name'); // 'Ada' (the middle key is an empty string)
 ```
 
 ### Strings
@@ -212,7 +221,9 @@ setDot(obj, 'users.*.active', true);
 ```js
 import { camelCase, escape, humanize, kebabCase, randomString, snakeCase } from '@fr0st/core';
 
-camelCase('hello world'); // 'helloWorld'
+camelCase('HELLO WORLD'); // 'helloWorld'
+camelCase('XMLParser'); // 'xmlParser'
+camelCase('MySQL'); // 'mySql'
 humanize('helloWorld'); // 'Hello world'
 kebabCase('helloWorld'); // 'hello-world'
 snakeCase('helloWorld'); // 'hello_world'
@@ -260,13 +271,16 @@ isPlainObject({}); // true
 ## Behavior Notes
 
 - `merge()` and `extend()` mutate and return the first argument.
+- `extend()` recursively merges nested plain objects and arrays, including plain objects from other JavaScript contexts. Nested arrays merge by index and preserve sparse lengths without shortening existing arrays.
+- `wrap()` returns existing arrays as-is, copies other iterable and array-like objects, and wraps scalar values in an array. `undefined` becomes `[]`.
 - `debounce()`, `throttle()`, and `animation()` return wrapped functions with `cancel()`.
-- Function wrappers preserve their call-site `this` value, and delayed wrappers use the most recent call-site value.
-- `range()` uses the absolute value of `step`, returns `[]` for `step === 0`, and includes `end` when the step lands on it exactly.
-- Dot-path reads and checks use own properties only.
-- `setDot()` supports `*` wildcard segments and an `{ overwrite }` option.
+- Function wrappers preserve their call-site `this` value, and delayed wrappers use the most recent call-site value. Curried functions keep the context from the first call.
+- `range()` uses the absolute value of `step`, returns `[]` for `step === 0`, and includes `end` when it aligns with the step, allowing for small floating-point rounding errors.
+- Dot-path helpers use own properties and treat empty segments as empty-string keys.
+- `setDot()` supports `*` wildcard segments over existing keys and an `{ overwrite }` option, which defaults to `true`.
 - `randomString()` uses `Math.random()` and must not be used for passwords, tokens, or other security-sensitive values.
 - `random()` and `randomInt()` use an exclusive upper bound.
+- With one argument, `random()` and `randomInt()` use `0` as the other bound. `randomInt()` accepts bounds in either order and throws a `RangeError` when they contain no integer.
 
 ## Development
 
