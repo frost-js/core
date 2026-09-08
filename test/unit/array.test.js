@@ -165,6 +165,36 @@ describe('Array', function() {
             );
         });
 
+        it('preserves array identity', function() {
+            const array = [1, 2, 3];
+
+            assert.strictEqual(wrap(array), array);
+        });
+
+        it('wraps forms with a shadowed nodeType as a single value', function() {
+            const control = {};
+            const form = Object.assign(Object.create({ nodeType: 1 }), {
+                0: control,
+                length: 1,
+                nodeType: control,
+            });
+            const result = wrap(form);
+
+            assert.strictEqual(result.length, 1);
+            assert.strictEqual(result[0], form);
+        });
+
+        it('wraps windows with a shadowed document defaultView as a single value', function() {
+            const view = { length: 0 };
+            view.document = Object.assign(Object.create({ nodeType: 9, defaultView: view }), {
+                defaultView: {},
+            });
+            const result = wrap(view);
+
+            assert.strictEqual(result.length, 1);
+            assert.strictEqual(result[0], view);
+        });
+
         it('copies iterable values', function() {
             assert.deepStrictEqual(
                 wrap(new Set([1, 2, 3])),

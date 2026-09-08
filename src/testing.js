@@ -1,3 +1,5 @@
+import { getDOMProperty } from './dom.js';
+
 /**
  * Testing methods
  */
@@ -7,6 +9,14 @@ const TEXT_NODE = 3;
 const COMMENT_NODE = 8;
 const DOCUMENT_NODE = 9;
 const DOCUMENT_FRAGMENT_NODE = 11;
+
+/**
+ * Reads a node type without named-property collisions.
+ * @param {*} value The value to read.
+ * @returns {*} The node type, or the input if falsy.
+ */
+const getNodeType = (value) =>
+    value && getDOMProperty(value, 'nodeType');
 
 /**
  * Checks whether a value is an array.
@@ -51,8 +61,7 @@ export const isBoolean = (value) =>
  * @returns {boolean} Whether the value is a Document.
  */
 export const isDocument = (value) =>
-    !!value &&
-    value.nodeType === DOCUMENT_NODE;
+    getNodeType(value) === DOCUMENT_NODE;
 
 /**
  * Checks whether a value is an Element.
@@ -60,8 +69,7 @@ export const isDocument = (value) =>
  * @returns {boolean} Whether the value is an Element.
  */
 export const isElement = (value) =>
-    !!value &&
-    value.nodeType === ELEMENT_NODE;
+    getNodeType(value) === ELEMENT_NODE;
 
 /**
  * Checks whether a value is a DocumentFragment (and not a ShadowRoot).
@@ -69,8 +77,7 @@ export const isElement = (value) =>
  * @returns {boolean} Whether the value is a DocumentFragment.
  */
 export const isFragment = (value) =>
-    !!value &&
-    value.nodeType === DOCUMENT_FRAGMENT_NODE &&
+    getNodeType(value) === DOCUMENT_FRAGMENT_NODE &&
     !value.host;
 
 /**
@@ -93,13 +100,12 @@ export const isNaN = Number.isNaN;
  * @param {*} value The value to test.
  * @returns {boolean} Whether the value is an Element, Text node, or Comment node.
  */
-export const isNode = (value) =>
-    !!value &&
-    (
-        value.nodeType === ELEMENT_NODE ||
-        value.nodeType === TEXT_NODE ||
-        value.nodeType === COMMENT_NODE
-    );
+export const isNode = (value) => {
+    const nodeType = getNodeType(value);
+    return nodeType === ELEMENT_NODE ||
+        nodeType === TEXT_NODE ||
+        nodeType === COMMENT_NODE;
+};
 
 /**
  * Checks whether a value is null.
@@ -152,8 +158,7 @@ export const isPlainObject = (value) => {
  * @returns {boolean} Whether the value is a ShadowRoot.
  */
 export const isShadow = (value) =>
-    !!value &&
-    value.nodeType === DOCUMENT_FRAGMENT_NODE &&
+    getNodeType(value) === DOCUMENT_FRAGMENT_NODE &&
     !!value.host;
 
 /**
@@ -170,8 +175,7 @@ export const isString = (value) =>
  * @returns {boolean} Whether the value is a text Node.
  */
 export const isText = (value) =>
-    !!value &&
-    value.nodeType === TEXT_NODE;
+    getNodeType(value) === TEXT_NODE;
 
 /**
  * Checks whether a value is undefined.
@@ -189,4 +193,4 @@ export const isUndefined = (value) =>
 export const isWindow = (value) =>
     !!value &&
     !!value.document &&
-    value.document.defaultView === value;
+    getDOMProperty(value.document, 'defaultView') === value;

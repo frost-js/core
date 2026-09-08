@@ -1,3 +1,27 @@
+//#region src/dom.js
+/**
+* DOM methods
+*/
+/**
+* Calls a DOM method without named-property collisions, preserving the receiver.
+* @param {*} node The node or ordinary value.
+* @param {string|symbol} method The method to call.
+* @param {...*} args The arguments to pass.
+* @returns {*} The method's return value.
+*/
+var callDOMMethod = (node, method, ...args) => Reflect.apply(getDOMProperty(node, method), node, args);
+/**
+* Reads a DOM prototype property without named-property collisions, or an ordinary property for non-DOM values.
+* @param {*} node The node or ordinary value.
+* @param {string|symbol} property The property to read.
+* @returns {*} The property value.
+*/
+var getDOMProperty = (node, property) => {
+	const prototype = Object.getPrototypeOf(node);
+	return prototype && "nodeType" in prototype ? Reflect.get(prototype, property, node) : node[property];
+};
+
+//#endregion
 //#region src/testing.js
 /**
 * Testing methods
@@ -7,6 +31,12 @@ var TEXT_NODE = 3;
 var COMMENT_NODE = 8;
 var DOCUMENT_NODE = 9;
 var DOCUMENT_FRAGMENT_NODE = 11;
+/**
+* Reads a node type without named-property collisions.
+* @param {*} value The value to read.
+* @returns {*} The node type, or the input if falsy.
+*/
+var getNodeType = (value) => value && getDOMProperty(value, "nodeType");
 /**
 * Checks whether a value is an array.
 * @param {*} value The value to test.
@@ -36,19 +66,19 @@ var isBoolean = (value) => typeof value === "boolean";
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a Document.
 */
-var isDocument = (value) => !!value && value.nodeType === DOCUMENT_NODE;
+var isDocument = (value) => getNodeType(value) === DOCUMENT_NODE;
 /**
 * Checks whether a value is an Element.
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is an Element.
 */
-var isElement = (value) => !!value && value.nodeType === ELEMENT_NODE;
+var isElement = (value) => getNodeType(value) === ELEMENT_NODE;
 /**
 * Checks whether a value is a DocumentFragment (and not a ShadowRoot).
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a DocumentFragment.
 */
-var isFragment = (value) => !!value && value.nodeType === DOCUMENT_FRAGMENT_NODE && !value.host;
+var isFragment = (value) => getNodeType(value) === DOCUMENT_FRAGMENT_NODE && !value.host;
 /**
 * Checks whether a value is a function.
 * @param {*} value The value to test.
@@ -66,7 +96,10 @@ var isNaN = Number.isNaN;
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is an Element, Text node, or Comment node.
 */
-var isNode = (value) => !!value && (value.nodeType === ELEMENT_NODE || value.nodeType === TEXT_NODE || value.nodeType === COMMENT_NODE);
+var isNode = (value) => {
+	const nodeType = getNodeType(value);
+	return nodeType === ELEMENT_NODE || nodeType === TEXT_NODE || nodeType === COMMENT_NODE;
+};
 /**
 * Checks whether a value is null.
 * @param {*} value The value to test.
@@ -106,7 +139,7 @@ var isPlainObject = (value) => {
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a ShadowRoot.
 */
-var isShadow = (value) => !!value && value.nodeType === DOCUMENT_FRAGMENT_NODE && !!value.host;
+var isShadow = (value) => getNodeType(value) === DOCUMENT_FRAGMENT_NODE && !!value.host;
 /**
 * Checks whether a value is a string.
 * @param {*} value The value to test.
@@ -118,7 +151,7 @@ var isString = (value) => typeof value === "string";
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a text Node.
 */
-var isText = (value) => !!value && value.nodeType === TEXT_NODE;
+var isText = (value) => getNodeType(value) === TEXT_NODE;
 /**
 * Checks whether a value is undefined.
 * @param {*} value The value to test.
@@ -130,7 +163,7 @@ var isUndefined = (value) => value === void 0;
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a Window.
 */
-var isWindow = (value) => !!value && !!value.document && value.document.defaultView === value;
+var isWindow = (value) => !!value && !!value.document && getDOMProperty(value.document, "defaultView") === value;
 
 //#endregion
 //#region src/math.js
@@ -859,5 +892,5 @@ var snakeCase = (string) => _splitString(string).join("_");
 var unescape = (string) => string.replace(/&(amp|lt|gt|quot|apos);/g, (_, code) => unescapeChars[code]);
 
 //#endregion
-export { animation, camelCase, capitalize, clamp, clampPercent, compose, curry, debounce, diff, dist, escape, escapeRegExp, evaluate, extend, flatten, forgetDot, getDot, hasDot, humanize, intersect, inverseLerp, isArray, isArrayLike, isBoolean, isDocument, isElement, isFragment, isFunction, isNaN, isNode, isNull, isNumeric, isObject, isPlainObject, isShadow, isString, isText, isUndefined, isWindow, kebabCase, len, lerp, map, merge, once, partial, pascalCase, pipe, pluckDot, random, randomInt, randomString, randomValue, range, setDot, snakeCase, throttle, times, toStep, unescape, unique, wrap };
+export { animation, callDOMMethod, camelCase, capitalize, clamp, clampPercent, compose, curry, debounce, diff, dist, escape, escapeRegExp, evaluate, extend, flatten, forgetDot, getDOMProperty, getDot, hasDot, humanize, intersect, inverseLerp, isArray, isArrayLike, isBoolean, isDocument, isElement, isFragment, isFunction, isNaN, isNode, isNull, isNumeric, isObject, isPlainObject, isShadow, isString, isText, isUndefined, isWindow, kebabCase, len, lerp, map, merge, once, partial, pascalCase, pipe, pluckDot, random, randomInt, randomString, randomValue, range, setDot, snakeCase, throttle, times, toStep, unescape, unique, wrap };
 //# sourceMappingURL=frost-core.esm.js.map

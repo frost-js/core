@@ -28,6 +28,31 @@ describe('Testing (Custom)', function() {
                 expected,
             );
         });
+
+        it('excludes forms with a shadowed nodeType', function() {
+            const control = {};
+            const form = Object.assign(Object.create({ nodeType: 1 }), {
+                0: control,
+                length: 1,
+                nodeType: control,
+            });
+
+            assert.strictEqual(isArrayLike(form), false);
+        });
+
+        it('excludes windows with a shadowed document defaultView', function() {
+            const view = { length: 0 };
+            view.document = Object.assign(Object.create({ nodeType: 9, defaultView: view }), {
+                defaultView: {},
+            });
+
+            assert.strictEqual(isArrayLike(view), false);
+        });
+
+        it('recognizes iterable values', function() {
+            assert.strictEqual(isArrayLike(new Set([1, 2, 3])), true);
+            assert.strictEqual(isArrayLike(new Uint8Array([1, 2, 3])), true);
+        });
     });
 
     describe('#isNumeric', function() {

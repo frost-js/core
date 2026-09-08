@@ -4,6 +4,30 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global._ = {})));
 })(this, function(exports) {
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+//#region src/dom.js
+/**
+	* DOM methods
+	*/
+	/**
+	* Calls a DOM method without named-property collisions, preserving the receiver.
+	* @param {*} node The node or ordinary value.
+	* @param {string|symbol} method The method to call.
+	* @param {...*} args The arguments to pass.
+	* @returns {*} The method's return value.
+	*/
+	var callDOMMethod = (node, method, ...args) => Reflect.apply(getDOMProperty(node, method), node, args);
+	/**
+	* Reads a DOM prototype property without named-property collisions, or an ordinary property for non-DOM values.
+	* @param {*} node The node or ordinary value.
+	* @param {string|symbol} property The property to read.
+	* @returns {*} The property value.
+	*/
+	var getDOMProperty = (node, property) => {
+		const prototype = Object.getPrototypeOf(node);
+		return prototype && "nodeType" in prototype ? Reflect.get(prototype, property, node) : node[property];
+	};
+
+//#endregion
 //#region src/testing.js
 /**
 	* Testing methods
@@ -13,6 +37,12 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	var COMMENT_NODE = 8;
 	var DOCUMENT_NODE = 9;
 	var DOCUMENT_FRAGMENT_NODE = 11;
+	/**
+	* Reads a node type without named-property collisions.
+	* @param {*} value The value to read.
+	* @returns {*} The node type, or the input if falsy.
+	*/
+	var getNodeType = (value) => value && getDOMProperty(value, "nodeType");
 	/**
 	* Checks whether a value is an array.
 	* @param {*} value The value to test.
@@ -42,19 +72,19 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is a Document.
 	*/
-	var isDocument = (value) => !!value && value.nodeType === DOCUMENT_NODE;
+	var isDocument = (value) => getNodeType(value) === DOCUMENT_NODE;
 	/**
 	* Checks whether a value is an Element.
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is an Element.
 	*/
-	var isElement = (value) => !!value && value.nodeType === ELEMENT_NODE;
+	var isElement = (value) => getNodeType(value) === ELEMENT_NODE;
 	/**
 	* Checks whether a value is a DocumentFragment (and not a ShadowRoot).
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is a DocumentFragment.
 	*/
-	var isFragment = (value) => !!value && value.nodeType === DOCUMENT_FRAGMENT_NODE && !value.host;
+	var isFragment = (value) => getNodeType(value) === DOCUMENT_FRAGMENT_NODE && !value.host;
 	/**
 	* Checks whether a value is a function.
 	* @param {*} value The value to test.
@@ -72,7 +102,10 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is an Element, Text node, or Comment node.
 	*/
-	var isNode = (value) => !!value && (value.nodeType === ELEMENT_NODE || value.nodeType === TEXT_NODE || value.nodeType === COMMENT_NODE);
+	var isNode = (value) => {
+		const nodeType = getNodeType(value);
+		return nodeType === ELEMENT_NODE || nodeType === TEXT_NODE || nodeType === COMMENT_NODE;
+	};
 	/**
 	* Checks whether a value is null.
 	* @param {*} value The value to test.
@@ -112,7 +145,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is a ShadowRoot.
 	*/
-	var isShadow = (value) => !!value && value.nodeType === DOCUMENT_FRAGMENT_NODE && !!value.host;
+	var isShadow = (value) => getNodeType(value) === DOCUMENT_FRAGMENT_NODE && !!value.host;
 	/**
 	* Checks whether a value is a string.
 	* @param {*} value The value to test.
@@ -124,7 +157,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is a text Node.
 	*/
-	var isText = (value) => !!value && value.nodeType === TEXT_NODE;
+	var isText = (value) => getNodeType(value) === TEXT_NODE;
 	/**
 	* Checks whether a value is undefined.
 	* @param {*} value The value to test.
@@ -136,7 +169,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is a Window.
 	*/
-	var isWindow = (value) => !!value && !!value.document && value.document.defaultView === value;
+	var isWindow = (value) => !!value && !!value.document && getDOMProperty(value.document, "defaultView") === value;
 
 //#endregion
 //#region src/math.js
@@ -866,6 +899,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 
 //#endregion
 exports.animation = animation;
+exports.callDOMMethod = callDOMMethod;
 exports.camelCase = camelCase;
 exports.capitalize = capitalize;
 exports.clamp = clamp;
@@ -881,6 +915,7 @@ exports.evaluate = evaluate;
 exports.extend = extend;
 exports.flatten = flatten;
 exports.forgetDot = forgetDot;
+exports.getDOMProperty = getDOMProperty;
 exports.getDot = getDot;
 exports.hasDot = hasDot;
 exports.humanize = humanize;
