@@ -15,14 +15,14 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {...*} args The arguments to pass.
 	* @returns {*} The method's return value.
 	*/
-	var callDOMMethod = (node, method, ...args) => Reflect.apply(getDOMProperty(node, method), node, args);
+	var callDomMethod = (node, method, ...args) => Reflect.apply(getDomProperty(node, method), node, args);
 	/**
 	* Reads a DOM prototype property without named-property collisions, or an ordinary property for non-DOM values.
 	* @param {*} node The node or ordinary value.
 	* @param {string|symbol} property The property to read.
 	* @returns {*} The property value.
 	*/
-	var getDOMProperty = (node, property) => {
+	var getDomProperty = (node, property) => {
 		const prototype = Object.getPrototypeOf(node);
 		return prototype && "nodeType" in prototype ? Reflect.get(prototype, property, node) : node[property];
 	};
@@ -42,7 +42,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to read.
 	* @returns {*} The node type, or the input if falsy.
 	*/
-	var getNodeType = (value) => value && getDOMProperty(value, "nodeType");
+	var getNodeType = (value) => value && getDomProperty(value, "nodeType");
 	/**
 	* Checks whether a value is an array.
 	* @param {*} value The value to test.
@@ -169,7 +169,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param {*} value The value to test.
 	* @returns {boolean} Whether the value is a Window.
 	*/
-	var isWindow = (value) => !!value && !!value.document && getDOMProperty(value.document, "defaultView") === value;
+	var isWindow = (value) => !!value && !!value.document && getDomProperty(value.document, "defaultView") === value;
 
 //#endregion
 //#region src/math.js
@@ -899,7 +899,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 
 //#endregion
 exports.animation = animation;
-exports.callDOMMethod = callDOMMethod;
+exports.callDomMethod = callDomMethod;
 exports.camelCase = camelCase;
 exports.capitalize = capitalize;
 exports.clamp = clamp;
@@ -915,7 +915,7 @@ exports.evaluate = evaluate;
 exports.extend = extend;
 exports.flatten = flatten;
 exports.forgetDot = forgetDot;
-exports.getDOMProperty = getDOMProperty;
+exports.getDomProperty = getDomProperty;
 exports.getDot = getDot;
 exports.hasDot = hasDot;
 exports.humanize = humanize;

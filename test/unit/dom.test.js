@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'vitest';
-import { callDOMMethod, getDOMProperty } from '../../src/index.js';
+import { callDomMethod, getDomProperty } from '../../src/index.js';
 import MockElement from '../support/mocks/mock-element.js';
 
 describe('DOM', function() {
-    describe('#callDOMMethod', function() {
+    describe('#callDomMethod', function() {
         it('calls a shadowed method with the node as the getter and method receiver', function() {
             const expected = {};
             const node = Object.create({
@@ -21,7 +21,7 @@ describe('DOM', function() {
                 matches: { value: new MockElement },
             });
 
-            assert.strictEqual(callDOMMethod(node, 'matches', 'form', true), expected);
+            assert.strictEqual(callDomMethod(node, 'matches', 'form', true), expected);
         });
 
         it.each([
@@ -36,7 +36,7 @@ describe('DOM', function() {
                 },
             });
 
-            assert.strictEqual(callDOMMethod(node, 'multiply', 3), 6);
+            assert.strictEqual(callDomMethod(node, 'multiply', 3), 6);
         });
 
         it('does not call an own method missing from the DOM prototype', function() {
@@ -44,11 +44,11 @@ describe('DOM', function() {
                 matches: { value: () => true },
             });
 
-            assert.throws(() => callDOMMethod(node, 'matches'), TypeError);
+            assert.throws(() => callDomMethod(node, 'matches'), TypeError);
         });
     });
 
-    describe('#getDOMProperty', function() {
+    describe('#getDomProperty', function() {
         it.each([
             ['nodeType', 1],
             ['style', { color: 'red' }],
@@ -68,7 +68,7 @@ describe('DOM', function() {
             });
 
             assert.strictEqual(node[property], control);
-            assert.strictEqual(getDOMProperty(node, property), expected);
+            assert.strictEqual(getDomProperty(node, property), expected);
         });
 
         it.each([
@@ -79,7 +79,7 @@ describe('DOM', function() {
                 style: { value: new MockElement },
             });
 
-            assert.strictEqual(getDOMProperty(node, 'style'), undefined);
+            assert.strictEqual(getDomProperty(node, 'style'), undefined);
         });
 
         it.each([
@@ -93,7 +93,7 @@ describe('DOM', function() {
             ['symbol', Symbol('test'), 'nodeType', undefined],
             ['bigint', 1n, 'nodeType', undefined],
         ])('preserves ordinary access for %s', function(_, input, property, expected) {
-            assert.strictEqual(getDOMProperty(input, property), expected);
+            assert.strictEqual(getDomProperty(input, property), expected);
         });
     });
 });

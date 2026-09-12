@@ -118,8 +118,8 @@ merge(out, [2, 3]);
 
 ### DOM
 
-- `getDOMProperty(node, property)`: read a DOM prototype property while bypassing named elements that shadow it
-- `callDOMMethod(node, method, ...args)`: call a DOM prototype method with the node as its receiver
+- `getDomProperty(node, property)`: read a DOM prototype property while bypassing named elements that shadow it
+- `callDomMethod(node, method, ...args)`: call a DOM prototype method with the node as its receiver
 
 These helpers use prototype lookup when the prototype chain contains `nodeType`, bypassing own properties even when the prototype lookup returns `undefined`. Other values use ordinary property access, including plain document stand-ins and null-prototype objects. No browser globals or DOM constructors are required.
 

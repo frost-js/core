@@ -9,14 +9,14 @@
 * @param {...*} args The arguments to pass.
 * @returns {*} The method's return value.
 */
-var callDOMMethod = (node, method, ...args) => Reflect.apply(getDOMProperty(node, method), node, args);
+var callDomMethod = (node, method, ...args) => Reflect.apply(getDomProperty(node, method), node, args);
 /**
 * Reads a DOM prototype property without named-property collisions, or an ordinary property for non-DOM values.
 * @param {*} node The node or ordinary value.
 * @param {string|symbol} property The property to read.
 * @returns {*} The property value.
 */
-var getDOMProperty = (node, property) => {
+var getDomProperty = (node, property) => {
 	const prototype = Object.getPrototypeOf(node);
 	return prototype && "nodeType" in prototype ? Reflect.get(prototype, property, node) : node[property];
 };
@@ -36,7 +36,7 @@ var DOCUMENT_FRAGMENT_NODE = 11;
 * @param {*} value The value to read.
 * @returns {*} The node type, or the input if falsy.
 */
-var getNodeType = (value) => value && getDOMProperty(value, "nodeType");
+var getNodeType = (value) => value && getDomProperty(value, "nodeType");
 /**
 * Checks whether a value is an array.
 * @param {*} value The value to test.
@@ -163,7 +163,7 @@ var isUndefined = (value) => value === void 0;
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a Window.
 */
-var isWindow = (value) => !!value && !!value.document && getDOMProperty(value.document, "defaultView") === value;
+var isWindow = (value) => !!value && !!value.document && getDomProperty(value.document, "defaultView") === value;
 
 //#endregion
 //#region src/math.js
@@ -892,5 +892,5 @@ var snakeCase = (string) => _splitString(string).join("_");
 var unescape = (string) => string.replace(/&(amp|lt|gt|quot|apos);/g, (_, code) => unescapeChars[code]);
 
 //#endregion
-export { animation, callDOMMethod, camelCase, capitalize, clamp, clampPercent, compose, curry, debounce, diff, dist, escape, escapeRegExp, evaluate, extend, flatten, forgetDot, getDOMProperty, getDot, hasDot, humanize, intersect, inverseLerp, isArray, isArrayLike, isBoolean, isDocument, isElement, isFragment, isFunction, isNaN, isNode, isNull, isNumeric, isObject, isPlainObject, isShadow, isString, isText, isUndefined, isWindow, kebabCase, len, lerp, map, merge, once, partial, pascalCase, pipe, pluckDot, random, randomInt, randomString, randomValue, range, setDot, snakeCase, throttle, times, toStep, unescape, unique, wrap };
+export { animation, callDomMethod, camelCase, capitalize, clamp, clampPercent, compose, curry, debounce, diff, dist, escape, escapeRegExp, evaluate, extend, flatten, forgetDot, getDomProperty, getDot, hasDot, humanize, intersect, inverseLerp, isArray, isArrayLike, isBoolean, isDocument, isElement, isFragment, isFunction, isNaN, isNode, isNull, isNumeric, isObject, isPlainObject, isShadow, isString, isText, isUndefined, isWindow, kebabCase, len, lerp, map, merge, once, partial, pascalCase, pipe, pluckDot, random, randomInt, randomString, randomValue, range, setDot, snakeCase, throttle, times, toStep, unescape, unique, wrap };
 //# sourceMappingURL=frost-core.esm.js.map

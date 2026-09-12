@@ -1,4 +1,4 @@
-import { getDOMProperty } from './dom.js';
+import { getDomProperty } from './dom.js';
 
 /**
  * Testing methods
@@ -16,7 +16,7 @@ const DOCUMENT_FRAGMENT_NODE = 11;
  * @returns {*} The node type, or the input if falsy.
  */
 const getNodeType = (value) =>
-    value && getDOMProperty(value, 'nodeType');
+    value && getDomProperty(value, 'nodeType');
 
 /**
  * Checks whether a value is an array.
@@ -193,4 +193,4 @@ export const isUndefined = (value) =>
 export const isWindow = (value) =>
     !!value &&
     !!value.document &&
-    getDOMProperty(value.document, 'defaultView') === value;
+    getDomProperty(value.document, 'defaultView') === value;
