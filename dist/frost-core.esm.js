@@ -113,7 +113,7 @@ var isNull = (value) => value === null;
 */
 var isNumeric = (value) => {
 	try {
-		return !isNaN(parseFloat(value)) && isFinite(value);
+		return !isNaN(Number.parseFloat(value)) && isFinite(value);
 	} catch {
 		return false;
 	}
@@ -123,7 +123,7 @@ var isNumeric = (value) => {
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is an object-like reference.
 */
-var isObject = (value) => !!value && value === Object(value);
+var isObject = (value) => Boolean(value) && value === Object(value);
 /**
 * Checks whether a value is a plain object.
 * @param {*} value The value to test.
@@ -139,7 +139,7 @@ var isPlainObject = (value) => {
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a ShadowRoot.
 */
-var isShadow = (value) => getNodeType(value) === DOCUMENT_FRAGMENT_NODE && !!value.host;
+var isShadow = (value) => getNodeType(value) === DOCUMENT_FRAGMENT_NODE && Boolean(value.host);
 /**
 * Checks whether a value is a string.
 * @param {*} value The value to test.
@@ -163,7 +163,7 @@ var isUndefined = (value) => value === void 0;
 * @param {*} value The value to test.
 * @returns {boolean} Whether the value is a Window.
 */
-var isWindow = (value) => !!value && !!value.document && getDomProperty(value.document, "defaultView") === value;
+var isWindow = (value) => Boolean(value) && Boolean(value.document) && getDomProperty(value.document, "defaultView") === value;
 
 //#endregion
 //#region src/math.js
@@ -268,7 +268,7 @@ var toStep = (value, step = .01) => {
 	const result = Math.round(value / step) * step;
 	const precision = getDecimalPlaces(step);
 	if (precision > 100) return result;
-	return parseFloat(result.toFixed(precision));
+	return Number(result.toFixed(precision));
 };
 
 //#endregion

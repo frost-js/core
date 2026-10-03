@@ -122,7 +122,8 @@ export const isNull = (value) =>
  */
 export const isNumeric = (value) => {
     try {
-        return !isNaN(parseFloat(value)) && isFinite(value);
+        // Require a numeric prefix and a finite full conversion, excluding empty values.
+        return !isNaN(Number.parseFloat(value)) && isFinite(value);
     } catch {
         return false;
     }
@@ -134,7 +135,7 @@ export const isNumeric = (value) => {
  * @returns {boolean} Whether the value is an object-like reference.
  */
 export const isObject = (value) =>
-    !!value &&
+    Boolean(value) &&
     value === Object(value);
 
 /**
@@ -159,7 +160,7 @@ export const isPlainObject = (value) => {
  */
 export const isShadow = (value) =>
     getNodeType(value) === DOCUMENT_FRAGMENT_NODE &&
-    !!value.host;
+    Boolean(value.host);
 
 /**
  * Checks whether a value is a string.
@@ -191,6 +192,6 @@ export const isUndefined = (value) =>
  * @returns {boolean} Whether the value is a Window.
  */
 export const isWindow = (value) =>
-    !!value &&
-    !!value.document &&
+    Boolean(value) &&
+    Boolean(value.document) &&
     getDomProperty(value.document, 'defaultView') === value;

@@ -158,7 +158,7 @@ export const toStep = (value, step = 0.01) => {
         return result;
     }
 
-    return parseFloat(
+    return Number(
         result.toFixed(precision),
     );
 };
