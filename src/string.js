@@ -141,7 +141,7 @@ export const randomString = (length = 16, chars = 'abcdefghijklmnopqrstuvwxyzABC
     return new Array(length)
         .fill()
         .map(
-            (_) =>
+            () =>
                 characters[randomInt(characters.length)],
         )
         .join('');

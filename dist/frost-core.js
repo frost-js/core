@@ -400,7 +400,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		let newArgs;
 		let newThis;
 		let running = false;
-		const cancel = (_) => {
+		const cancel = () => {
 			if (animationReference !== null) {
 				if (isBrowser) window.cancelAnimationFrame(animationReference);
 				else clearTimeout(animationReference);
@@ -415,7 +415,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			newThis = this;
 			if (running) return;
 			running = true;
-			animationReference = _requestAnimationFrame((_) => {
+			animationReference = _requestAnimationFrame(() => {
 				const args = newArgs;
 				const thisArg = newThis;
 				animationReference = null;
@@ -475,7 +475,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		let newArgs;
 		let newThis;
 		let trailingPending = false;
-		const cancel = (_) => {
+		const cancel = () => {
 			if (debounceReference !== null) clearTimeout(debounceReference);
 			debounceReference = null;
 			newArgs = null;
@@ -491,7 +491,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			} else trailingPending = false;
 			newArgs = args;
 			newThis = this;
-			debounceReference = setTimeout((_) => {
+			debounceReference = setTimeout(() => {
 				const args = newArgs;
 				const thisArg = newThis;
 				const callTrailing = trailing && (!leading || trailingPending);
@@ -576,14 +576,14 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		let lastRan;
 		let newArgs;
 		let newThis;
-		const cancel = (_) => {
+		const cancel = () => {
 			if (throttleReference !== null) clearTimeout(throttleReference);
 			throttleReference = null;
 			lastRan = void 0;
 			newArgs = null;
 			newThis = null;
 		};
-		const runTrailing = (_) => {
+		const runTrailing = () => {
 			const args = newArgs;
 			const thisArg = newThis;
 			throttleReference = null;
@@ -882,7 +882,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	var randomString = (length = 16, chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") => {
 		const characters = Array.from(chars);
 		if (!characters.length) throw new TypeError("chars must not be empty");
-		return new Array(length).fill().map((_) => characters[randomInt(characters.length)]).join("");
+		return new Array(length).fill().map(() => characters[randomInt(characters.length)]).join("");
 	};
 	/**
 	* Converts a string to snake_case.

@@ -12,31 +12,31 @@ import MockShadow from '../../support/mocks/mock-shadow.js';
 import MockTextNode from '../../support/mocks/mock-text-node.js';
 import MockWindow from '../../support/mocks/mock-window.js';
 
-describe('Testing (DOM)', function() {
-    describe('#isDocument', function() {
+describe('Testing (DOM)', () => {
+    describe('#isDocument', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, false],
-            ['works with document', new MockDocument, true],
-            ['works with document and shadowed nodeType', Object.assign(Object.create({ nodeType: 9 }), { nodeType: new MockElement }), true],
-            ['works with element', new MockElement, false],
-            ['works with fragment', new MockFragment, false],
+            ['works with comment node', new MockCommentNode(), false],
+            ['works with document', new MockDocument(), true],
+            ['works with document and shadowed nodeType', Object.assign(Object.create({ nodeType: 9 }), { nodeType: new MockElement() }), true],
+            ['works with element', new MockElement(), false],
+            ['works with fragment', new MockFragment(), false],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, false],
+            ['works with shadow', new MockShadow(), false],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, false],
+            ['works with text node', new MockTextNode(), false],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, false],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), false],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isDocument(input),
                 expected,
@@ -44,30 +44,30 @@ describe('Testing (DOM)', function() {
         });
     });
 
-    describe('#isElement', function() {
+    describe('#isElement', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, false],
-            ['works with document', new MockDocument, false],
-            ['works with element', new MockElement, true],
-            ['works with element and shadowed nodeType', Object.assign(Object.create({ nodeType: 1 }), { nodeType: new MockElement }), true],
-            ['works with fragment', new MockFragment, false],
+            ['works with comment node', new MockCommentNode(), false],
+            ['works with document', new MockDocument(), false],
+            ['works with element', new MockElement(), true],
+            ['works with element and shadowed nodeType', Object.assign(Object.create({ nodeType: 1 }), { nodeType: new MockElement() }), true],
+            ['works with fragment', new MockFragment(), false],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, false],
+            ['works with shadow', new MockShadow(), false],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, false],
+            ['works with text node', new MockTextNode(), false],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, false],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), false],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isElement(input),
                 expected,
@@ -75,31 +75,31 @@ describe('Testing (DOM)', function() {
         });
     });
 
-    describe('#isFragment', function() {
+    describe('#isFragment', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, false],
-            ['works with document', new MockDocument, false],
-            ['works with element', new MockElement, false],
-            ['works with fragment', new MockFragment, true],
-            ['works with fragment and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement, host: null }), true],
+            ['works with comment node', new MockCommentNode(), false],
+            ['works with document', new MockDocument(), false],
+            ['works with element', new MockElement(), false],
+            ['works with fragment', new MockFragment(), true],
+            ['works with fragment and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement(), host: null }), true],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, false],
-            ['works with shadow and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement, host: new MockElement }), false],
+            ['works with shadow', new MockShadow(), false],
+            ['works with shadow and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement(), host: new MockElement() }), false],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, false],
+            ['works with text node', new MockTextNode(), false],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, false],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), false],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isFragment(input),
                 expected,
@@ -107,34 +107,34 @@ describe('Testing (DOM)', function() {
         });
     });
 
-    describe('#isNode', function() {
+    describe('#isNode', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, true],
-            ['works with comment node and shadowed nodeType', Object.assign(Object.create({ nodeType: 8 }), { nodeType: new MockElement }), true],
-            ['works with document', new MockDocument, false],
-            ['works with document and shadowed nodeType', Object.assign(Object.create({ nodeType: 9 }), { nodeType: new MockElement }), false],
-            ['works with element', new MockElement, true],
-            ['works with element and shadowed nodeType', Object.assign(Object.create({ nodeType: 1 }), { nodeType: new MockElement }), true],
-            ['works with fragment', new MockFragment, false],
-            ['works with fragment and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement, host: null }), false],
+            ['works with comment node', new MockCommentNode(), true],
+            ['works with comment node and shadowed nodeType', Object.assign(Object.create({ nodeType: 8 }), { nodeType: new MockElement() }), true],
+            ['works with document', new MockDocument(), false],
+            ['works with document and shadowed nodeType', Object.assign(Object.create({ nodeType: 9 }), { nodeType: new MockElement() }), false],
+            ['works with element', new MockElement(), true],
+            ['works with element and shadowed nodeType', Object.assign(Object.create({ nodeType: 1 }), { nodeType: new MockElement() }), true],
+            ['works with fragment', new MockFragment(), false],
+            ['works with fragment and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement(), host: null }), false],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, false],
+            ['works with shadow', new MockShadow(), false],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, true],
-            ['works with text node and shadowed nodeType', Object.assign(Object.create({ nodeType: 3 }), { nodeType: new MockElement }), true],
+            ['works with text node', new MockTextNode(), true],
+            ['works with text node and shadowed nodeType', Object.assign(Object.create({ nodeType: 3 }), { nodeType: new MockElement() }), true],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, false],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), false],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isNode(input),
                 expected,
@@ -142,31 +142,31 @@ describe('Testing (DOM)', function() {
         });
     });
 
-    describe('#isShadow', function() {
+    describe('#isShadow', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, false],
-            ['works with document', new MockDocument, false],
-            ['works with element', new MockElement, false],
-            ['works with fragment', new MockFragment, false],
-            ['works with fragment and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement, host: null }), false],
+            ['works with comment node', new MockCommentNode(), false],
+            ['works with document', new MockDocument(), false],
+            ['works with element', new MockElement(), false],
+            ['works with fragment', new MockFragment(), false],
+            ['works with fragment and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement(), host: null }), false],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, true],
-            ['works with shadow and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement, host: new MockElement }), true],
+            ['works with shadow', new MockShadow(), true],
+            ['works with shadow and shadowed nodeType', Object.assign(Object.create({ nodeType: 11 }), { nodeType: new MockElement(), host: new MockElement() }), true],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, false],
+            ['works with text node', new MockTextNode(), false],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, false],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), false],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isShadow(input),
                 expected,
@@ -174,30 +174,30 @@ describe('Testing (DOM)', function() {
         });
     });
 
-    describe('#isText', function() {
+    describe('#isText', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, false],
-            ['works with document', new MockDocument, false],
-            ['works with element', new MockElement, false],
-            ['works with fragment', new MockFragment, false],
+            ['works with comment node', new MockCommentNode(), false],
+            ['works with document', new MockDocument(), false],
+            ['works with element', new MockElement(), false],
+            ['works with fragment', new MockFragment(), false],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, false],
+            ['works with shadow', new MockShadow(), false],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, true],
-            ['works with text node and shadowed nodeType', Object.assign(Object.create({ nodeType: 3 }), { nodeType: new MockElement }), true],
+            ['works with text node', new MockTextNode(), true],
+            ['works with text node and shadowed nodeType', Object.assign(Object.create({ nodeType: 3 }), { nodeType: new MockElement() }), true],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, false],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), false],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isText(input),
                 expected,
@@ -205,36 +205,36 @@ describe('Testing (DOM)', function() {
         });
     });
 
-    describe('#isWindow', function() {
+    describe('#isWindow', () => {
         it.each([
             ['works with array', mockArray, false],
-            ['works with array-like', new MockArrayLike, false],
+            ['works with array-like', new MockArrayLike(), false],
             ['works with boolean true', true, false],
             ['works with boolean false', false, false],
-            ['works with comment node', new MockCommentNode, false],
-            ['works with document', new MockDocument, false],
-            ['works with element', new MockElement, false],
-            ['works with fragment', new MockFragment, false],
+            ['works with comment node', new MockCommentNode(), false],
+            ['works with document', new MockDocument(), false],
+            ['works with element', new MockElement(), false],
+            ['works with fragment', new MockFragment(), false],
             ['works with function', mockFunction, false],
             ['works with NaN', NaN, false],
             ['works with null', null, false],
             ['works with number', mockNumber, false],
             ['works with numeric string', mockNumericString, false],
-            ['works with object', new MockObject, false],
+            ['works with object', new MockObject(), false],
             ['works with plain object', mockPlainObject, false],
-            ['works with shadow', new MockShadow, false],
+            ['works with shadow', new MockShadow(), false],
             ['works with string', mockString, false],
-            ['works with text node', new MockTextNode, false],
+            ['works with text node', new MockTextNode(), false],
             ['works with undefined', undefined, false],
-            ['works with window', new MockWindow, true],
-        ])('%s', function(_, input, expected) {
+            ['works with window', new MockWindow(), true],
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 isWindow(input),
                 expected,
             );
         });
 
-        it('recognizes a window with a shadowed document defaultView', function() {
+        it('recognizes a window with a shadowed document defaultView', () => {
             const view = {};
             view.document = Object.create({
                 nodeType: 9,
@@ -243,7 +243,7 @@ describe('Testing (DOM)', function() {
                     return view;
                 },
             }, {
-                defaultView: { value: new MockElement },
+                defaultView: { value: new MockElement() },
             });
 
             assert.strictEqual(isWindow(view), true);
@@ -253,7 +253,7 @@ describe('Testing (DOM)', function() {
         it.each([
             ['plain document', { nodeType: 9 }],
             ['null-prototype document', Object.assign(Object.create(null), { nodeType: 9 })],
-        ])('preserves %s stand-ins', function(_, document) {
+        ])('preserves %s stand-ins', (_, document) => {
             const view = { document };
             document.defaultView = view;
 

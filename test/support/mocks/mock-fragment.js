@@ -4,7 +4,7 @@
  */
 export default class MockFragment {
     /**
-     * New MockFragment constructor.
+     * Creates a MockFragment.
      */
     constructor() {
         this.nodeType = 11;

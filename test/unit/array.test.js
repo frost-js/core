@@ -4,13 +4,13 @@ import { diff, intersect, merge, randomValue, range, unique, wrap } from '../../
 import { mockArray, mockNumber, mockPlainObject, mockString } from '../support/fixtures.js';
 import MockArrayLike from '../support/mocks/mock-array-like.js';
 
-describe('Array', function() {
-    afterEach(function() {
+describe('Array', () => {
+    afterEach(() => {
         vi.restoreAllMocks();
     });
 
-    describe('#diff', function() {
-        it('returns the elements that exist only in the first array', function() {
+    describe('#diff', () => {
+        it('returns the elements that exist only in the first array', () => {
             assert.deepStrictEqual(
                 diff(
                     [1, 2, 3, 4, 5],
@@ -22,12 +22,12 @@ describe('Array', function() {
         });
     });
 
-    describe('#intersect', function() {
-        it('returns an empty array without inputs', function() {
+    describe('#intersect', () => {
+        it('returns an empty array without inputs', () => {
             assert.deepStrictEqual(intersect(), []);
         });
 
-        it('returns the elements that exist in all arrays', function() {
+        it('returns the elements that exist in all arrays', () => {
             assert.deepStrictEqual(
                 intersect(
                     [1, 2, 3, 4, 5],
@@ -38,7 +38,7 @@ describe('Array', function() {
             );
         });
 
-        it('preserves the first array order and removes duplicates', function() {
+        it('preserves the first array order and removes duplicates', () => {
             assert.deepStrictEqual(
                 intersect([3, NaN, 2, 3], [NaN, 3]),
                 [3, NaN],
@@ -46,8 +46,8 @@ describe('Array', function() {
         });
     });
 
-    describe('#merge', function() {
-        it('merges the elements to the first array', function() {
+    describe('#merge', () => {
+        it('merges the elements to the first array', () => {
             const test = [1];
             merge(test, [2, 3], [4, 5]);
             assert.deepStrictEqual(
@@ -56,14 +56,14 @@ describe('Array', function() {
             );
         });
 
-        it('returns the merged array', function() {
+        it('returns the merged array', () => {
             assert.deepStrictEqual(
                 merge([], [1], [2, 3], [4, 5]),
                 [1, 2, 3, 4, 5],
             );
         });
 
-        it('can merge an array into itself', function() {
+        it('can merge an array into itself', () => {
             const array = [1, 2, 3];
 
             assert.deepStrictEqual(
@@ -72,32 +72,32 @@ describe('Array', function() {
             );
         });
 
-        it('merges arrays too large for argument spreading', function() {
+        it('merges arrays too large for argument spreading', () => {
             const array = new Array(200000).fill(1);
 
             assert.strictEqual(merge([], array).length, array.length);
         });
     });
 
-    describe('#randomValue', function() {
+    describe('#randomValue', () => {
         it.each([
             [0, 'a'],
             [0.25, 'b'],
             [0.5, 'c'],
             [0.75, 'd'],
             [1 - Number.EPSILON, 'e'],
-        ])('selects %s -> %s', function(sample, expected) {
+        ])('selects %s -> %s', (sample, expected) => {
             vi.spyOn(Math, 'random').mockReturnValue(sample);
 
             assert.strictEqual(randomValue(['a', 'b', 'c', 'd', 'e']), expected);
         });
 
-        it('returns null for an empty array', function() {
+        it('returns null for an empty array', () => {
             assert.strictEqual(randomValue([]), null);
         });
     });
 
-    describe('#range', function() {
+    describe('#range', () => {
         it.each([
             ['works with incrementing integers', [0, 10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
             ['works with incrementing decimals', [0, 1, .1], [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1]],
@@ -109,14 +109,14 @@ describe('Array', function() {
             ['works with a negative offset', [-10, -20], [-10, -11, -12, -13, -14, -15, -16, -17, -18, -19, -20]],
             ['returns an empty array for a step of zero', [0, 10, 0], []],
             ['works with a negative step size', [0, 5, -1], [0, 1, 2, 3, 4, 5]],
-        ])('%s', function(_, args, expected) {
+        ])('%s', (_, args, expected) => {
             assert.deepStrictEqual(
                 range(...args),
                 expected,
             );
         });
 
-        it('includes a floating-point endpoint', function() {
+        it('includes a floating-point endpoint', () => {
             assert.deepStrictEqual(
                 range(0, 0.3, 0.1),
                 [0, 0.1, 0.2, 0.3],
@@ -127,7 +127,7 @@ describe('Array', function() {
             );
         });
 
-        it('includes a descending decimal endpoint', function() {
+        it('includes a descending decimal endpoint', () => {
             const values = range(1.4, 1, 0.1);
 
             assert.strictEqual(values.length, 5);
@@ -135,11 +135,11 @@ describe('Array', function() {
         });
     });
 
-    describe('#unique', function() {
+    describe('#unique', () => {
         it.each([
             ['returns the unique elements', [1, 2, 2, 3, 4, 5], [1, 2, 3, 4, 5]],
             ['only removes "strict" duplicates', [1, 2, '2', 3, 4, 5], [1, 2, '2', 3, 4, 5]],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.deepStrictEqual(
                 unique(input),
                 expected,
@@ -147,7 +147,7 @@ describe('Array', function() {
         });
     });
 
-    describe('#wrap', function() {
+    describe('#wrap', () => {
         it.each([
             ['returns an array from an array', mockArray, mockArray],
             ['returns an array from an array-like', new MockArrayLike(), [1, 2, 3]],
@@ -158,20 +158,20 @@ describe('Array', function() {
             ['returns an array from a string', mockString, [mockString]],
             ['returns an array from true', true, [true]],
             ['returns an empty array from undefined', undefined, []],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.deepStrictEqual(
                 wrap(input),
                 expected,
             );
         });
 
-        it('preserves array identity', function() {
+        it('preserves array identity', () => {
             const array = [1, 2, 3];
 
             assert.strictEqual(wrap(array), array);
         });
 
-        it('wraps forms with a shadowed nodeType as a single value', function() {
+        it('wraps forms with a shadowed nodeType as a single value', () => {
             const control = {};
             const form = Object.assign(Object.create({ nodeType: 1 }), {
                 0: control,
@@ -184,7 +184,7 @@ describe('Array', function() {
             assert.strictEqual(result[0], form);
         });
 
-        it('wraps windows with a shadowed document defaultView as a single value', function() {
+        it('wraps windows with a shadowed document defaultView as a single value', () => {
             const view = { length: 0 };
             view.document = Object.assign(Object.create({ nodeType: 9, defaultView: view }), {
                 defaultView: {},
@@ -195,7 +195,7 @@ describe('Array', function() {
             assert.strictEqual(result[0], view);
         });
 
-        it('copies iterable values', function() {
+        it('copies iterable values', () => {
             assert.deepStrictEqual(
                 wrap(new Set([1, 2, 3])),
                 [1, 2, 3],

@@ -4,7 +4,7 @@
  */
 export default class MockCommentNode {
     /**
-     * New MockCommentNode constructor.
+     * Creates a MockCommentNode.
      */
     constructor() {
         this.nodeType = 8;

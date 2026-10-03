@@ -4,7 +4,7 @@
  */
 export default class MockElement {
     /**
-     * New MockElement constructor.
+     * Creates a MockElement.
      */
     constructor() {
         this.nodeType = 1;

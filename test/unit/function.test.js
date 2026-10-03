@@ -2,17 +2,17 @@ import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, vi } from 'vitest';
 import { animation, compose, curry, debounce, evaluate, once, partial, pipe, throttle, times } from '../../src/index.js';
 
-describe('Function', function() {
-    beforeEach(function() {
+describe('Function', () => {
+    beforeEach(() => {
         vi.useFakeTimers();
     });
 
-    afterEach(function() {
+    afterEach(() => {
         vi.useRealTimers();
     });
 
-    describe('#animation', function() {
-        it('returns an animation function', function() {
+    describe('#animation', () => {
+        it('returns an animation function', () => {
             const callback = vi.fn();
             const animated = animation(callback);
 
@@ -22,7 +22,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
-        it('only executes once per animation frame', function() {
+        it('only executes once per animation frame', () => {
             const callback = vi.fn();
             const animated = animation(callback);
 
@@ -33,7 +33,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
-        it('executes for each animation frame', function() {
+        it('executes for each animation frame', () => {
             const callback = vi.fn();
             const animated = animation(callback);
 
@@ -46,7 +46,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['second']]);
         });
 
-        it('works without leading argument', function() {
+        it('works without leading argument', () => {
             const callback = vi.fn();
             const animated = animation(callback);
 
@@ -57,7 +57,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
-        it('works with leading argument', function() {
+        it('works with leading argument', () => {
             const callback = vi.fn();
             const animated = animation(callback, { leading: true });
 
@@ -72,7 +72,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['next']]);
         });
 
-        it('uses the most recent arguments', function() {
+        it('uses the most recent arguments', () => {
             const callback = vi.fn();
             const animated = animation(callback);
 
@@ -83,7 +83,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['last', 2]]);
         });
 
-        it('uses the most recent context', function() {
+        it('uses the most recent context', () => {
             const callback = vi.fn();
             const animated = animation(callback);
             const expected = {};
@@ -96,7 +96,7 @@ describe('Function', function() {
             assert.strictEqual(callback.mock.contexts[0], expected);
         });
 
-        it('allows callback to be cancelled', function() {
+        it('allows callback to be cancelled', () => {
             const callback = vi.fn();
             const animated = animation(callback);
 
@@ -108,8 +108,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#compose', function() {
-        it('returns a composed function', function() {
+    describe('#compose', () => {
+        it('returns a composed function', () => {
             assert.strictEqual(
                 compose(
                     (x) => x / 2,
@@ -120,7 +120,7 @@ describe('Function', function() {
             );
         });
 
-        it('preserves context', function() {
+        it('preserves context', () => {
             const callback = compose(function(value) {
                 return this.amount + value;
             });
@@ -129,8 +129,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#curry', function() {
-        it('returns a curried function', function() {
+    describe('#curry', () => {
+        it('returns a curried function', () => {
             assert.strictEqual(
                 curry(
                     (a, b) =>
@@ -140,7 +140,7 @@ describe('Function', function() {
             );
         });
 
-        it('preserves context from the first call', function() {
+        it('preserves context from the first call', () => {
             const callback = curry(function(a, b) {
                 return this.amount + a + b;
             });
@@ -149,8 +149,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#debounce', function() {
-        it('returns a debounced function', function() {
+    describe('#debounce', () => {
+        it('returns a debounced function', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32);
 
@@ -160,7 +160,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
-        it('only executes once per wait period', function() {
+        it('only executes once per wait period', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32);
 
@@ -171,7 +171,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
-        it('executes for each wait period', function() {
+        it('executes for each wait period', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 16);
 
@@ -184,7 +184,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['second']]);
         });
 
-        it('only executes after wait period', function() {
+        it('only executes after wait period', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 16);
 
@@ -201,7 +201,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['last']]);
         });
 
-        it('works with leading only', function() {
+        it('works with leading only', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32, { leading: true, trailing: false });
 
@@ -217,7 +217,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['next']]);
         });
 
-        it('works with trailing only', function() {
+        it('works with trailing only', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32, { leading: false, trailing: true });
 
@@ -233,7 +233,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['last']]);
         });
 
-        it('works with leading and trailing', function() {
+        it('works with leading and trailing', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32, { leading: true, trailing: true });
 
@@ -245,7 +245,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['last']]);
         });
 
-        it('does not run stale trailing arguments after the original wait period', function() {
+        it('does not run stale trailing arguments after the original wait period', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 200, { leading: true, trailing: true });
 
@@ -263,7 +263,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[1], [3]]);
         });
 
-        it('works without leading or trailing', function() {
+        it('works without leading or trailing', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32, { trailing: false });
 
@@ -274,7 +274,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, []);
         });
 
-        it('uses the most recent arguments', function() {
+        it('uses the most recent arguments', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32);
 
@@ -285,7 +285,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['last', 2]]);
         });
 
-        it('uses the most recent context', function() {
+        it('uses the most recent context', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 1);
             const expected = {};
@@ -298,7 +298,7 @@ describe('Function', function() {
             assert.strictEqual(callback.mock.contexts[0], expected);
         });
 
-        it('allows callback to be cancelled', function() {
+        it('allows callback to be cancelled', () => {
             const callback = vi.fn();
             const debounced = debounce(callback, 32);
 
@@ -310,17 +310,17 @@ describe('Function', function() {
         });
     });
 
-    describe('#evaluate', function() {
-        it('returns the result of a function', function() {
+    describe('#evaluate', () => {
+        it('returns the result of a function', () => {
             const value = 42;
             const result = evaluate(
-                (_) => value,
+                () => value,
             );
 
             assert.strictEqual(result, value);
         });
 
-        it('returns the value of a non-function', function() {
+        it('returns the value of a non-function', () => {
             const value = 42;
             const result = evaluate(value);
 
@@ -328,8 +328,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#once', function() {
-        it('returns a function that only executes once', function() {
+    describe('#once', () => {
+        it('returns a function that only executes once', () => {
             const callback = vi.fn();
             const runOnce = once(callback);
 
@@ -339,7 +339,7 @@ describe('Function', function() {
             assert.strictEqual(callback.mock.calls.length, 1);
         });
 
-        it('returns the result of the first execution on subsequent calls', function() {
+        it('returns the result of the first execution on subsequent calls', () => {
             const callback = vi.fn((value) => value);
             const runOnce = once(callback);
             const first = { value: 1 };
@@ -349,7 +349,7 @@ describe('Function', function() {
             assert.strictEqual(callback.mock.calls.length, 1);
         });
 
-        it('retries after an error until the first successful execution', function() {
+        it('retries after an error until the first successful execution', () => {
             const callback = vi.fn((value) => {
                 if (value === 1) {
                     throw new Error('fail');
@@ -369,7 +369,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[1], [2]]);
         });
 
-        it('prevents re-entrant execution and preserves context', function() {
+        it('prevents re-entrant execution and preserves context', () => {
             let nestedResult;
             const context = { value: 42 };
             const callback = once(function() {
@@ -382,9 +382,9 @@ describe('Function', function() {
             assert.strictEqual(callback(), 42);
         });
 
-        it('caches a returned promise regardless of its outcome', async function() {
+        it('caches a returned promise regardless of its outcome', async () => {
             const result = Promise.reject(new Error('fail'));
-            const callback = once((_) => result);
+            const callback = once(() => result);
 
             assert.strictEqual(callback(), result);
             assert.strictEqual(callback(), result);
@@ -392,8 +392,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#partial', function() {
-        it('returns a function with partial arguments', function() {
+    describe('#partial', () => {
+        it('returns a function with partial arguments', () => {
             assert.strictEqual(
                 partial(
                     (a, b) =>
@@ -404,7 +404,7 @@ describe('Function', function() {
             );
         });
 
-        it('preserves context', function() {
+        it('preserves context', () => {
             const callback = partial(function(amount) {
                 return this.value + amount;
             }, 2);
@@ -413,8 +413,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#pipe', function() {
-        it('returns a piped function', function() {
+    describe('#pipe', () => {
+        it('returns a piped function', () => {
             assert.strictEqual(
                 pipe(
                     (x) => x / 2,
@@ -425,7 +425,7 @@ describe('Function', function() {
             );
         });
 
-        it('preserves context', function() {
+        it('preserves context', () => {
             const callback = pipe(function(value) {
                 return this.amount + value;
             });
@@ -434,8 +434,8 @@ describe('Function', function() {
         });
     });
 
-    describe('#throttle', function() {
-        it('returns a throttled function', function() {
+    describe('#throttle', () => {
+        it('returns a throttled function', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32);
 
@@ -445,7 +445,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [[]]);
         });
 
-        it('only executes once per wait period', function() {
+        it('only executes once per wait period', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32);
 
@@ -461,7 +461,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['last']]);
         });
 
-        it('executes for each wait period', function() {
+        it('executes for each wait period', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32);
 
@@ -473,7 +473,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['second']]);
         });
 
-        it('works with leading only', function() {
+        it('works with leading only', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32, { trailing: false });
 
@@ -489,7 +489,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['next']]);
         });
 
-        it('works with trailing only', function() {
+        it('works with trailing only', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32, { leading: false });
 
@@ -504,7 +504,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['last']]);
         });
 
-        it('works with leading and trailing', function() {
+        it('works with leading and trailing', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32, { leading: true, trailing: true });
 
@@ -516,7 +516,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first'], ['last']]);
         });
 
-        it('works without leading or trailing', function() {
+        it('works without leading or trailing', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32, { leading: false, trailing: false });
 
@@ -527,7 +527,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, []);
         });
 
-        it('uses the most recent arguments', function() {
+        it('uses the most recent arguments', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32);
 
@@ -538,7 +538,7 @@ describe('Function', function() {
             assert.deepStrictEqual(callback.mock.calls, [['first', 1], ['last', 2]]);
         });
 
-        it('uses the most recent context', function() {
+        it('uses the most recent context', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 1, { leading: false });
             const expected = {};
@@ -551,7 +551,7 @@ describe('Function', function() {
             assert.strictEqual(callback.mock.contexts[0], expected);
         });
 
-        it('allows callback to be cancelled', function() {
+        it('allows callback to be cancelled', () => {
             const callback = vi.fn();
             const throttled = throttle(callback, 32);
 
@@ -564,11 +564,11 @@ describe('Function', function() {
         });
     });
 
-    describe('#times', function() {
+    describe('#times', () => {
         it.each([
             ['executes a function x times', 3, 3],
             ['does not run for a negative amount', -3, 0],
-        ])('%s', function(_, amount, expected) {
+        ])('%s', (_, amount, expected) => {
             const callback = vi.fn();
 
             times(callback, amount);
@@ -576,7 +576,7 @@ describe('Function', function() {
             assert.strictEqual(callback.mock.calls.length, expected);
         });
 
-        it('stops when the callback returns false', function() {
+        it('stops when the callback returns false', () => {
             const callback = vi.fn().mockReturnValue(false);
 
             times(callback, 3);

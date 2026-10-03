@@ -3,30 +3,30 @@ import { runInNewContext } from 'node:vm';
 import { describe, it } from 'vitest';
 import { extend, flatten, forgetDot, getDot, hasDot, pluckDot, setDot } from '../../src/index.js';
 
-describe('Object', function() {
-    describe('#extend', function() {
-        it('extends the first object', function() {
+describe('Object', () => {
+    describe('#extend', () => {
+        it('extends the first object', () => {
             const obj = {};
             extend(obj, { a: 1 });
 
             assert.deepStrictEqual(obj, { a: 1 });
         });
 
-        it('ignores null and undefined sources', function() {
+        it('ignores null and undefined sources', () => {
             assert.deepStrictEqual(
                 extend({}, null, undefined, { a: 1 }),
                 { a: 1 },
             );
         });
 
-        it('returns the extended object', function() {
+        it('returns the extended object', () => {
             assert.deepStrictEqual(
                 extend({}, { a: 1 }),
                 { a: 1 },
             );
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             assert.deepStrictEqual(
                 extend(
                     { a: 1 },
@@ -36,7 +36,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with multiple arguments', function() {
+        it('works with multiple arguments', () => {
             assert.deepStrictEqual(
                 extend(
                     { a: 1 },
@@ -47,7 +47,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with overwriting properties', function() {
+        it('works with overwriting properties', () => {
             assert.deepStrictEqual(
                 extend(
                     { a: 1, b: 2 },
@@ -57,7 +57,7 @@ describe('Object', function() {
             );
         });
 
-        it('does not copy objects by reference', function() {
+        it('does not copy objects by reference', () => {
             const b = { c: 1 };
             const result = extend(
                 { a: 1 },
@@ -70,7 +70,7 @@ describe('Object', function() {
             );
         });
 
-        it('deep-merges objects from another context without retaining source references', function() {
+        it('deep-merges objects from another context without retaining source references', () => {
             const source = runInNewContext('({ nested: { value: 1 } })');
             const result = extend({ nested: { existing: true } }, source);
 
@@ -79,7 +79,7 @@ describe('Object', function() {
             assert.deepStrictEqual(result, { nested: { existing: true, value: 1 } });
         });
 
-        it('does not copy arrays by reference', function() {
+        it('does not copy arrays by reference', () => {
             const b = [1, 2, 3];
             const result = extend(
                 { a: 1 },
@@ -92,7 +92,7 @@ describe('Object', function() {
             );
         });
 
-        it('preserves sparse array lengths without shortening existing arrays', function() {
+        it('preserves sparse array lengths without shortening existing arrays', () => {
             const source = { items: new Array(3) };
 
             assert.deepStrictEqual(extend({}, source), source);
@@ -102,7 +102,7 @@ describe('Object', function() {
             );
         });
 
-        it('does not copy inherited properties', function() {
+        it('does not copy inherited properties', () => {
             function TestObject() {
                 this.a = 1;
             }
@@ -110,12 +110,12 @@ describe('Object', function() {
             TestObject.prototype.b = 2;
 
             assert.deepStrictEqual(
-                extend({}, new TestObject),
+                extend({}, new TestObject()),
                 { a: 1 },
             );
         });
 
-        it('copies prototype-shaped keys without changing the prototype', function() {
+        it('copies prototype-shaped keys without changing the prototype', () => {
             const source = JSON.parse('{"__proto__":{"value":1},"constructor":{"prototype":{"value":2}},"prototype":{"value":3}}');
             const result = extend({}, source);
 
@@ -125,14 +125,14 @@ describe('Object', function() {
         });
     });
 
-    describe('#flatten', function() {
-        it('flattens the object', function() {
+    describe('#flatten', () => {
+        it('flattens the object', () => {
             const obj = { a: 1, b: 2 };
 
             assert.deepStrictEqual(flatten(obj), obj);
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             const obj = { a: { b: 1, c: 2 }, d: 3 };
 
             assert.deepStrictEqual(flatten(obj), {
@@ -142,7 +142,7 @@ describe('Object', function() {
             });
         });
 
-        it('creates a new object', function() {
+        it('creates a new object', () => {
             const obj = { a: 1, b: 2 };
             const flattened = flatten(obj);
 
@@ -151,7 +151,7 @@ describe('Object', function() {
             assert.deepStrictEqual(flattened, { a: 1, b: 2 });
         });
 
-        it('preserves empty objects and __proto__ keys', function() {
+        it('preserves empty objects and __proto__ keys', () => {
             const flattened = flatten(
                 JSON.parse('{"empty":{},"__proto__":"value"}'),
             );
@@ -163,22 +163,22 @@ describe('Object', function() {
         });
     });
 
-    describe('#forgetDot', function() {
-        it('removes the property', function() {
+    describe('#forgetDot', () => {
+        it('removes the property', () => {
             const obj = { a: 1, b: 2 };
             forgetDot(obj, 'a');
 
             assert.deepStrictEqual(obj, { b: 2 });
         });
 
-        it('has no return value', function() {
+        it('has no return value', () => {
             assert.strictEqual(
                 forgetDot({ a: 1 }, 'a'),
                 undefined,
             );
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             const obj = { a: { b: 1, c: 2 }, d: 3 };
             forgetDot(obj, 'a.b');
 
@@ -188,7 +188,7 @@ describe('Object', function() {
             );
         });
 
-        it('handles empty path segments', function() {
+        it('handles empty path segments', () => {
             const obj = { user: { '': { name: 'Ada' } } };
             forgetDot(obj, 'user..name');
 
@@ -198,7 +198,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with properties that do not exist', function() {
+        it('works with properties that do not exist', () => {
             const obj = { a: 1, b: 2 };
             forgetDot(obj, 'c');
 
@@ -209,8 +209,8 @@ describe('Object', function() {
         });
     });
 
-    describe('#getDot', function() {
-        it('returns the value', function() {
+    describe('#getDot', () => {
+        it('returns the value', () => {
             assert.strictEqual(
                 getDot(
                     { a: 1, b: 2 },
@@ -220,7 +220,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             assert.strictEqual(
                 getDot(
                     { a: { b: 1, c: 2 }, d: 3 },
@@ -230,7 +230,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with properties that do not exist', function() {
+        it('works with properties that do not exist', () => {
             assert.strictEqual(
                 getDot(
                     { a: 1, b: 2 },
@@ -240,14 +240,14 @@ describe('Object', function() {
             );
         });
 
-        it('handles empty path segments', function() {
+        it('handles empty path segments', () => {
             const object = { user: { '': { name: 'Ada' } } };
 
             assert.strictEqual(getDot(object, 'user..name'), 'Ada');
             assert.strictEqual(getDot({ user: {} }, 'user..missing', 'fallback'), 'fallback');
         });
 
-        it('does not retrieve inherited properties', function() {
+        it('does not retrieve inherited properties', () => {
             assert.strictEqual(
                 getDot({}, 'toString', 'fallback'),
                 'fallback',
@@ -255,8 +255,8 @@ describe('Object', function() {
         });
     });
 
-    describe('#hasDot', function() {
-        it('returns true if the property exists', function() {
+    describe('#hasDot', () => {
+        it('returns true if the property exists', () => {
             assert.strictEqual(
                 hasDot(
                     { a: 1, b: 2 },
@@ -266,7 +266,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             assert.strictEqual(
                 hasDot(
                     { a: { b: 1, c: 2 }, d: 3 },
@@ -276,7 +276,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with properties that do not exist', function() {
+        it('works with properties that do not exist', () => {
             assert.strictEqual(
                 hasDot(
                     { a: 1, b: 2 },
@@ -286,7 +286,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with deep objects, when the property does not exist', function() {
+        it('works with deep objects, when the property does not exist', () => {
             assert.strictEqual(
                 hasDot(
                     { a: { b: 1, c: 2 }, d: 3 },
@@ -296,20 +296,20 @@ describe('Object', function() {
             );
         });
 
-        it('handles empty path segments', function() {
+        it('handles empty path segments', () => {
             const object = { user: { '': { name: 'Ada' } } };
 
             assert.strictEqual(hasDot(object, 'user..name'), true);
             assert.strictEqual(hasDot({ user: {} }, 'user..missing'), false);
         });
 
-        it('does not find inherited properties', function() {
+        it('does not find inherited properties', () => {
             assert.strictEqual(hasDot({}, 'toString'), false);
         });
     });
 
-    describe('#pluckDot', function() {
-        it('returns the values', function() {
+    describe('#pluckDot', () => {
+        it('returns the values', () => {
             assert.deepStrictEqual(
                 pluckDot(
                     [
@@ -323,7 +323,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             assert.deepStrictEqual(
                 pluckDot(
                     [
@@ -337,7 +337,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with properties that do not exist', function() {
+        it('works with properties that do not exist', () => {
             assert.deepStrictEqual(
                 pluckDot(
                     [
@@ -352,8 +352,8 @@ describe('Object', function() {
         });
     });
 
-    describe('#setDot', function() {
-        it('sets the value', function() {
+    describe('#setDot', () => {
+        it('sets the value', () => {
             const obj = { a: 1 };
             setDot(obj, 'b', 2);
 
@@ -363,7 +363,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with deep objects', function() {
+        it('works with deep objects', () => {
             const obj = { a: 1 };
             setDot(obj, 'b.c', 2);
 
@@ -373,7 +373,7 @@ describe('Object', function() {
             );
         });
 
-        it('handles empty path segments', function() {
+        it('handles empty path segments', () => {
             const obj = {};
             setDot(obj, 'user..name', 'Ada');
 
@@ -383,7 +383,7 @@ describe('Object', function() {
             );
         });
 
-        it('works when overwriting existing values', function() {
+        it('works when overwriting existing values', () => {
             const obj = { a: 1, b: { c: 2 } };
             setDot(obj, 'b.c', 3);
 
@@ -393,7 +393,7 @@ describe('Object', function() {
             );
         });
 
-        it('works with wildcard properties', function() {
+        it('works with wildcard properties', () => {
             const obj = { a: 1, b: { c: 2, d: 3, e: 4 } };
             setDot(obj, 'b.*', 3);
 
@@ -403,7 +403,7 @@ describe('Object', function() {
             );
         });
 
-        it('respects overwrite option with wildcard properties', function() {
+        it('respects overwrite option with wildcard properties', () => {
             const obj = { a: 1, b: { c: 2, d: 3, e: 4 } };
             setDot(obj, 'b.*', 3, { overwrite: false });
 
@@ -413,7 +413,7 @@ describe('Object', function() {
             );
         });
 
-        it('uses wildcard keys without reparsing them', function() {
+        it('uses wildcard keys without reparsing them', () => {
             const obj = {
                 '*': { active: false },
                 'a.b': { active: false },
@@ -427,7 +427,7 @@ describe('Object', function() {
             });
         });
 
-        it('does not overwrite intermediate values when disabled', function() {
+        it('does not overwrite intermediate values when disabled', () => {
             const obj = { a: 1 };
 
             setDot(obj, 'a.b', 2, { overwrite: false });
@@ -435,7 +435,7 @@ describe('Object', function() {
             assert.deepStrictEqual(obj, { a: 1 });
         });
 
-        it('creates prototype-shaped paths as own data', function() {
+        it('creates prototype-shaped paths as own data', () => {
             const obj = {};
 
             setDot(obj, '__proto__.polluted', true);

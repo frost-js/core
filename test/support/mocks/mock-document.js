@@ -4,7 +4,7 @@
  */
 export default class MockDocument {
     /**
-     * New MockDocument constructor.
+     * Creates a MockDocument.
      * @param {MockWindow} window The MockWindow.
      */
     constructor(window = null) {

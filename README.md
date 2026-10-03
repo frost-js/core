@@ -58,7 +58,7 @@ Load the bundle from your own copy or a CDN:
 
 The package root resolves to the prebuilt ESM bundle. Published files under `dist/` and `src/` are also available through matching package subpaths.
 
-## Quick Start
+## Usage
 
 ```js
 import {
@@ -275,7 +275,7 @@ isNumeric('123.45'); // true
 isPlainObject({}); // true
 ```
 
-## Behavior Notes
+## Behavior notes
 
 - `merge()` and `extend()` mutate and return the first argument.
 - `extend()` recursively merges nested plain objects and arrays, including plain objects from other JavaScript contexts. Nested arrays merge by index and preserve sparse lengths without shortening existing arrays.
@@ -291,11 +291,17 @@ isPlainObject({}); // true
 
 ## Development
 
+Install dependencies with `npm ci`.
+
 ```bash
 npm test
 npm run lint
 npm run build
 ```
+
+`npm test` runs the Vitest suite against the source files.
+
+`npm run test:coverage` runs the suite and writes coverage reports to `coverage/`.
 
 ## License
 

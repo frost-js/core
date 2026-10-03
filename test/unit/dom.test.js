@@ -3,9 +3,9 @@ import { describe, it } from 'vitest';
 import { callDomMethod, getDomProperty } from '../../src/index.js';
 import MockElement from '../support/mocks/mock-element.js';
 
-describe('DOM', function() {
-    describe('#callDomMethod', function() {
-        it('calls a shadowed method with the node as the getter and method receiver', function() {
+describe('DOM', () => {
+    describe('#callDomMethod', () => {
+        it('calls a shadowed method with the node as the getter and method receiver', () => {
             const expected = {};
             const node = Object.create({
                 nodeType: 1,
@@ -18,7 +18,7 @@ describe('DOM', function() {
                     };
                 },
             }, {
-                matches: { value: new MockElement },
+                matches: { value: new MockElement() },
             });
 
             assert.strictEqual(callDomMethod(node, 'matches', 'form', true), expected);
@@ -27,7 +27,7 @@ describe('DOM', function() {
         it.each([
             ['ordinary object', Object.prototype],
             ['null-prototype object', null],
-        ])('preserves own methods and receivers for an %s', function(_, prototype) {
+        ])('preserves own methods and receivers for an %s', (_, prototype) => {
             const node = Object.assign(Object.create(prototype), {
                 value: 2,
                 multiply(amount) {
@@ -39,7 +39,7 @@ describe('DOM', function() {
             assert.strictEqual(callDomMethod(node, 'multiply', 3), 6);
         });
 
-        it('does not call an own method missing from the DOM prototype', function() {
+        it('does not call an own method missing from the DOM prototype', () => {
             const node = Object.create({ nodeType: 1 }, {
                 matches: { value: () => true },
             });
@@ -48,13 +48,13 @@ describe('DOM', function() {
         });
     });
 
-    describe('#getDomProperty', function() {
+    describe('#getDomProperty', () => {
         it.each([
             ['nodeType', 1],
             ['style', { color: 'red' }],
             ['dataset', { name: 'test' }],
-        ])('reads shadowed %s with the node as the getter receiver', function(property, expected) {
-            const control = new MockElement;
+        ])('reads shadowed %s with the node as the getter receiver', (property, expected) => {
+            const control = new MockElement();
             const prototype = Object.create({ nodeType: 1 }, {
                 [property]: {
                     get() {
@@ -74,9 +74,9 @@ describe('DOM', function() {
         it.each([
             ['missing', { nodeType: 1 }],
             ['undefined', { nodeType: 1, style: undefined }],
-        ])('does not fall back to an own property when the prototype property is %s', function(_, prototype) {
+        ])('does not fall back to an own property when the prototype property is %s', (_, prototype) => {
             const node = Object.create(prototype, {
-                style: { value: new MockElement },
+                style: { value: new MockElement() },
             });
 
             assert.strictEqual(getDomProperty(node, 'style'), undefined);
@@ -92,7 +92,7 @@ describe('DOM', function() {
             ['boolean', true, 'nodeType', undefined],
             ['symbol', Symbol('test'), 'nodeType', undefined],
             ['bigint', 1n, 'nodeType', undefined],
-        ])('preserves ordinary access for %s', function(_, input, property, expected) {
+        ])('preserves ordinary access for %s', (_, input, property, expected) => {
             assert.strictEqual(getDomProperty(input, property), expected);
         });
     });

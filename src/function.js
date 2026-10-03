@@ -40,7 +40,7 @@ export const animation = (callback, { leading = false } = {}) => {
     let newThis;
     let running = false;
 
-    const cancel = (_) => {
+    const cancel = () => {
         if (animationReference !== null) {
             if (isBrowser) {
                 window.cancelAnimationFrame(animationReference);
@@ -64,7 +64,7 @@ export const animation = (callback, { leading = false } = {}) => {
         }
 
         running = true;
-        animationReference = _requestAnimationFrame((_) => {
+        animationReference = _requestAnimationFrame(() => {
             const args = newArgs;
             const thisArg = newThis;
 
@@ -147,7 +147,7 @@ export const debounce = (callback, wait = 0, { leading = false, trailing = true 
     let newThis;
     let trailingPending = false;
 
-    const cancel = (_) => {
+    const cancel = () => {
         if (debounceReference !== null) {
             clearTimeout(debounceReference);
         }
@@ -175,7 +175,7 @@ export const debounce = (callback, wait = 0, { leading = false, trailing = true 
         newThis = this;
 
         debounceReference = setTimeout(
-            (_) => {
+            () => {
                 const args = newArgs;
                 const thisArg = newThis;
                 const callTrailing = trailing && (!leading || trailingPending);
@@ -293,7 +293,7 @@ export const throttle = (callback, wait = 0, { leading = true, trailing = true }
     let newArgs;
     let newThis;
 
-    const cancel = (_) => {
+    const cancel = () => {
         if (throttleReference !== null) {
             clearTimeout(throttleReference);
         }
@@ -304,7 +304,7 @@ export const throttle = (callback, wait = 0, { leading = true, trailing = true }
         newThis = null;
     };
 
-    const runTrailing = (_) => {
+    const runTrailing = () => {
         const args = newArgs;
         const thisArg = newThis;
 

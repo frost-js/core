@@ -6,10 +6,10 @@ import MockElement from './mock-element.js';
  */
 export default class MockShadow {
     /**
-     * New MockShadow constructor.
+     * Creates a MockShadow.
      */
     constructor() {
         this.nodeType = 11;
-        this.host = new MockElement;
+        this.host = new MockElement();
     }
 }

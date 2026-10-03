@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it, vi } from 'vitest';
 import { camelCase, capitalize, escape, escapeRegExp, humanize, kebabCase, pascalCase, randomString, snakeCase, unescape } from '../../src/index.js';
 
-describe('String', function() {
-    afterEach(function() {
+describe('String', () => {
+    afterEach(() => {
         vi.restoreAllMocks();
     });
 
-    describe('#camelCase', function() {
+    describe('#camelCase', () => {
         it.each([
             ['returns a camelized string', 'This is a sample string', 'thisIsASampleString'],
             ['works from upper case', 'HELLO WORLD', 'helloWorld'],
@@ -17,7 +17,7 @@ describe('String', function() {
             ['works from snake_case', 'this_is_a_sample_string', 'thisIsASampleString'],
             ['strips invalid characters', 'This is a sample string!@#$%^&*()_+`-=[]{}|\\;,.<>/?', 'thisIsASampleString'],
             ['strips multiple apostrophes', `rock'n'roll`, 'rocknroll'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 camelCase(input),
                 expected,
@@ -25,12 +25,12 @@ describe('String', function() {
         });
     });
 
-    describe('#capitalize', function() {
+    describe('#capitalize', () => {
         it.each([
             ['returns a capitalized string', 'This is a sample string', 'This is a sample string'],
             ['works from lower case', 'this is a sample string', 'This is a sample string'],
             ['works from upper case', 'THIS IS A SAMPLE STRING', 'This is a sample string'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 capitalize(input),
                 expected,
@@ -38,7 +38,7 @@ describe('String', function() {
         });
     });
 
-    describe('#escape', function() {
+    describe('#escape', () => {
         it.each([
             ['returns an escaped string', 'This is a sample string', 'This is a sample string'],
             ['escapes ampersand', '&', '&amp;'],
@@ -46,7 +46,7 @@ describe('String', function() {
             ['escapes greater than', '>', '&gt;'],
             ['escapes less than', '<', '&lt;'],
             ['escapes quotation mark', '"', '&quot;'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 escape(input),
                 expected,
@@ -54,7 +54,7 @@ describe('String', function() {
         });
     });
 
-    describe('#escapeRegExp', function() {
+    describe('#escapeRegExp', () => {
         it.each([
             ['returns an escaped string', 'This is a sample string', 'This is a sample string'],
             ['escapes asterisk', '*', '\\*'],
@@ -73,21 +73,21 @@ describe('String', function() {
             ['escapes plus', '+', '\\+'],
             ['escapes pipe', '|', '\\|'],
             ['escapes question mark', '?', '\\?'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 escapeRegExp(input),
                 expected,
             );
         });
 
-        it('produces escapes that compile in Unicode mode', function() {
+        it('produces escapes that compile in Unicode mode', () => {
             const escaped = escapeRegExp('a-b');
 
             assert.ok(new RegExp(escaped, 'u').test('a-b'));
         });
     });
 
-    describe('#humanize', function() {
+    describe('#humanize', () => {
         it.each([
             ['returns a humanized string', 'This is a sample string', 'This is a sample string'],
             ['works from upper case', 'HELLO WORLD', 'Hello world'],
@@ -96,7 +96,7 @@ describe('String', function() {
             ['works from PascalCase', 'ThisIsASampleString', 'This is a sample string'],
             ['works from snake_case', 'this_is_a_sample_string', 'This is a sample string'],
             ['strips invalid characters', 'This is a sample string!@#$%^&*()_+`-=[]{}|\\;,.<>/?', 'This is a sample string'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 humanize(input),
                 expected,
@@ -104,7 +104,7 @@ describe('String', function() {
         });
     });
 
-    describe('#kebabCase', function() {
+    describe('#kebabCase', () => {
         it.each([
             ['returns a kebab-case string', 'This is a sample string', 'this-is-a-sample-string'],
             ['works from upper case', 'HELLO WORLD', 'hello-world'],
@@ -112,7 +112,7 @@ describe('String', function() {
             ['works from PascalCase', 'ThisIsASampleString', 'this-is-a-sample-string'],
             ['works from snake_case', 'this_is_a_sample_string', 'this-is-a-sample-string'],
             ['strips invalid characters', 'This is a sample string!@#$%^&*()_+`-=[]{}|\\;,.<>/?', 'this-is-a-sample-string'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 kebabCase(input),
                 expected,
@@ -120,7 +120,7 @@ describe('String', function() {
         });
     });
 
-    describe('#pascalCase', function() {
+    describe('#pascalCase', () => {
         it.each([
             ['returns a pascalized string', 'This is a sample string', 'ThisIsASampleString'],
             ['works from upper case', 'HELLO WORLD', 'HelloWorld'],
@@ -128,7 +128,7 @@ describe('String', function() {
             ['works from kebab-case', 'this-is-a-sample-string', 'ThisIsASampleString'],
             ['works from snake_case', 'this_is_a_sample_string', 'ThisIsASampleString'],
             ['strips invalid characters', 'This is a sample string!@#$%^&*()_+`-=[]{}|\\;,.<>/?', 'ThisIsASampleString'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 pascalCase(input),
                 expected,
@@ -136,20 +136,20 @@ describe('String', function() {
         });
     });
 
-    describe('#randomString', function() {
+    describe('#randomString', () => {
         it.each([
             ['uses the default length and first character', [], 0, 'a'.repeat(16)],
             ['can select the last default character', [], 1 - Number.EPSILON, '9'.repeat(16)],
             ['works with a custom length', [24], 0.5, 'F'.repeat(24)],
             ['works with custom characters', [8, '0123456789'], 0.75, '77777777'],
             ['selects complete Unicode code points', [4, '😀'], 0.5, '😀😀😀😀'],
-        ])('%s', function(_, args, sample, expected) {
+        ])('%s', (_, args, sample, expected) => {
             vi.spyOn(Math, 'random').mockReturnValue(sample);
 
             assert.strictEqual(randomString(...args), expected);
         });
 
-        it('selects each character independently', function() {
+        it('selects each character independently', () => {
             vi.spyOn(Math, 'random')
                 .mockReturnValueOnce(0)
                 .mockReturnValueOnce(0.5)
@@ -158,15 +158,15 @@ describe('String', function() {
             assert.strictEqual(randomString(3, 'abc'), 'abc');
         });
 
-        it('rejects an empty character set', function() {
+        it('rejects an empty character set', () => {
             assert.throws(
-                (_) => randomString(4, ''),
+                () => randomString(4, ''),
                 TypeError,
             );
         });
     });
 
-    describe('#snakeCase', function() {
+    describe('#snakeCase', () => {
         it.each([
             ['returns a snake_cased string', 'This is a sample string', 'this_is_a_sample_string'],
             ['works from upper case', 'HELLO WORLD', 'hello_world'],
@@ -174,7 +174,7 @@ describe('String', function() {
             ['works from PascalCase', 'ThisIsASampleString', 'this_is_a_sample_string'],
             ['works from kebab-case', 'this-is-a-sample-string', 'this_is_a_sample_string'],
             ['strips invalid characters', 'This is a sample string!@#$%^&*()_+`-=[]{}|\\;,.<>/?', 'this_is_a_sample_string'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 snakeCase(input),
                 expected,
@@ -182,7 +182,7 @@ describe('String', function() {
         });
     });
 
-    describe('#unescape', function() {
+    describe('#unescape', () => {
         it.each([
             ['returns an unescaped string', 'This is a sample string', 'This is a sample string'],
             ['unescapes ampersand', '&amp;', '&'],
@@ -190,7 +190,7 @@ describe('String', function() {
             ['unescapes greater than', '&gt;', '>'],
             ['unescapes less than', '&lt;', '<'],
             ['unescapes quotation mark', '&quot;', '"'],
-        ])('%s', function(_, input, expected) {
+        ])('%s', (_, input, expected) => {
             assert.strictEqual(
                 unescape(input),
                 expected,

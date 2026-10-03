@@ -6,7 +6,7 @@ import MockDocument from './mock-document.js';
  */
 export default class MockWindow {
     /**
-     * New MockWindow constructor.
+     * Creates a MockWindow.
      */
     constructor() {
         this.document = new MockDocument(this);

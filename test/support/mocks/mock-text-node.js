@@ -4,7 +4,7 @@
  */
 export default class MockTextNode {
     /**
-     * New MockTextNode constructor.
+     * Creates a MockTextNode.
      */
     constructor() {
         this.nodeType = 3;

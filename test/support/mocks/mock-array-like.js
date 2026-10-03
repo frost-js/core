@@ -4,7 +4,7 @@
  */
 export default class MockArrayLike {
     /**
-     * New MockArrayLike constructor.
+     * Creates a MockArrayLike.
      */
     constructor() {
         this[0] = 1;

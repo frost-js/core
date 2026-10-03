@@ -394,7 +394,7 @@ var animation = (callback, { leading = false } = {}) => {
 	let newArgs;
 	let newThis;
 	let running = false;
-	const cancel = (_) => {
+	const cancel = () => {
 		if (animationReference !== null) {
 			if (isBrowser) window.cancelAnimationFrame(animationReference);
 			else clearTimeout(animationReference);
@@ -409,7 +409,7 @@ var animation = (callback, { leading = false } = {}) => {
 		newThis = this;
 		if (running) return;
 		running = true;
-		animationReference = _requestAnimationFrame((_) => {
+		animationReference = _requestAnimationFrame(() => {
 			const args = newArgs;
 			const thisArg = newThis;
 			animationReference = null;
@@ -469,7 +469,7 @@ var debounce = (callback, wait = 0, { leading = false, trailing = true } = {}) =
 	let newArgs;
 	let newThis;
 	let trailingPending = false;
-	const cancel = (_) => {
+	const cancel = () => {
 		if (debounceReference !== null) clearTimeout(debounceReference);
 		debounceReference = null;
 		newArgs = null;
@@ -485,7 +485,7 @@ var debounce = (callback, wait = 0, { leading = false, trailing = true } = {}) =
 		} else trailingPending = false;
 		newArgs = args;
 		newThis = this;
-		debounceReference = setTimeout((_) => {
+		debounceReference = setTimeout(() => {
 			const args = newArgs;
 			const thisArg = newThis;
 			const callTrailing = trailing && (!leading || trailingPending);
@@ -570,14 +570,14 @@ var throttle = (callback, wait = 0, { leading = true, trailing = true } = {}) =>
 	let lastRan;
 	let newArgs;
 	let newThis;
-	const cancel = (_) => {
+	const cancel = () => {
 		if (throttleReference !== null) clearTimeout(throttleReference);
 		throttleReference = null;
 		lastRan = void 0;
 		newArgs = null;
 		newThis = null;
 	};
-	const runTrailing = (_) => {
+	const runTrailing = () => {
 		const args = newArgs;
 		const thisArg = newThis;
 		throttleReference = null;
@@ -876,7 +876,7 @@ var pascalCase = (string) => _splitString(string).map((word) => word.charAt(0).t
 var randomString = (length = 16, chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") => {
 	const characters = Array.from(chars);
 	if (!characters.length) throw new TypeError("chars must not be empty");
-	return new Array(length).fill().map((_) => characters[randomInt(characters.length)]).join("");
+	return new Array(length).fill().map(() => characters[randomInt(characters.length)]).join("");
 };
 /**
 * Converts a string to snake_case.

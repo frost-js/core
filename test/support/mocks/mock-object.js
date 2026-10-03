@@ -4,7 +4,7 @@
  */
 export default class MockObject {
     /**
-     * New MockObject constructor.
+     * Creates a MockObject.
      */
     constructor() { }
 }
